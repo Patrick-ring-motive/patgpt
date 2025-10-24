@@ -1,4 +1,3 @@
-
 // Trie Node for prefix matching
 class TrieNode {
   constructor() {
@@ -110,7 +109,7 @@ class HybridVectorGenerator {
   }
 }
 
-const stream = x => new Response(x,{duplex:"half"}).body;
+const stream = x => new Response(x, { duplex: "half" }).body;
 
 class CachedVectorStore {
   constructor(vectorDim, cacheName = 'llm-cache') {
@@ -119,6 +118,28 @@ class CachedVectorStore {
     this.ids = [];     // Query texts as cache keys
     this.cacheName = cacheName;
     this.maxVectors = 1000; // Limit in-memory vectors
+    this.loadVectorsFromCache(); // Load vectors on init
+  }
+
+  async loadVectorsFromCache() {
+    try {
+      const cache = await caches.open(this.cacheName);
+      const keys = await cache.keys();
+      for (const key of keys) {
+        const response = await cache.match(key);
+        if (response) {
+          const decompressed = response.body.pipeThrough(new DecompressionStream('gzip'));
+          const data = JSON.parse(await new Response(decompressed).text());
+          if (data.vector && data.vector.length === this.vectorDim && this.vectors.length < this.maxVectors) {
+            this.vectors.push(data.vector.map(x => parseFloat(x)));
+            this.ids.push(key.url);
+          }
+        }
+      }
+      console.log(`Loaded ${this.vectors.length} vectors from Cache API`);
+    } catch (e) {
+      console.error('Failed to load vectors from cache:', e);
+    }
   }
 
   async insert(text, response, id = null) {
@@ -142,7 +163,7 @@ class CachedVectorStore {
       const cache = await caches.open(this.cacheName);
       const cacheKey = new Request(queryId, { method: 'GET' });
       const cacheValue = new Response(compressed, {
-        headers: { 'Content-Type': 'application/octet-stream' , 'Content-Encoding' : 'gzip' }
+        headers: { 'Content-Type': 'application/octet-stream', 'Content-Encoding': 'gzip' }
       });
       await cache.put(cacheKey, cacheValue);
     } catch (e) {
@@ -158,7 +179,10 @@ class CachedVectorStore {
     if (!Array.isArray(queryVector) || queryVector.length !== this.vectorDim) {
       throw new Error(`Query vector must be an array of length ${this.vectorDim}`);
     }
-    if (this.vectors.length === 0) return [];
+    if (this.vectors.length === 0) {
+      await this.loadVectorsFromCache(); // Try loading if empty
+      if (this.vectors.length === 0) return [];
+    }
 
     // Find top-k similar vectors
     const similarities = this.vectors.map((vec, i) => ({
@@ -177,7 +201,7 @@ class CachedVectorStore {
         const cacheKey = new Request(id, { method: 'GET' });
         const response = await cache.match(cacheKey);
         if (response) {
-          const decompressed = response.clone().body.pipeThrough(new DecompressionStream('gzip'));
+          const decompressed = response.body.pipeThrough(new DecompressionStream('gzip'));
           const text = await new Response(decompressed).text();
           cached = JSON.parse(text);
         }
