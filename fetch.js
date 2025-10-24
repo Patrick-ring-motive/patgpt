@@ -54,6 +54,20 @@
                         },_has);
                         return res;
                 };
+
+                (()=>{
+                        const _desc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype,'src');
+                        const _imgSet = _desc.set;
+                        Object.defineProperty(HTMLImageElement.prototype,'src',extend({
+                                set:extend(function set(value){
+                                        if(String(value).includes('external-content.llm.patrickring.net')){
+                                                value = String(value).replace('external-content.llm.patrickring.net','llm.patrickring.net');
+                                        }
+                                        return _imgSet.call(this,value);
+                                },_imgSet);
+                        },_desc));
+                })();
+                
                 const _fetch = globalThis.fetch;
                 globalThis.fetch = extend(async function fetch(...args) {
                                 const url = String(args[0]?.url ?? args[0]);
