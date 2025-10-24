@@ -70,14 +70,20 @@
                                         let res = await _fetch.apply(this, args);
                                         if (res.status != 200) {
                                             res = new Response(`data: {"id":"1","action":"success","created":'+new Date().getTime()+',"model":"gpt-5-mini-2025-08-07","role":"assistant","message":"'+res.statusText+'"}
-data: [DONE]`,{headers:{'content-type':'text/event-stream'}});
+
+data: [DONE]
+
+`,{headers:{'content-type':'text/event-stream'}});
                   console.log(res);
                 }
-               // throw new Error('asdf');
+                throw new Error('asdf');
                 return revealHeaders(res);
               }catch(e){
                 return new Response(`data: {"id":"1","action":"success","created":'+new Date().getTime()+',"model":"gpt-5-mini-2025-08-07","role":"assistant","message":"'+String(e?.message??e)+'"}
-data: [DONE]`,{headers:{'content-type':'text/event-stream'}});
+
+data: [DONE]
+
+`,{headers:{'content-type':'text/event-stream'}});
               }
             }
             return revealHeaders(await _fetch.apply(this,args));
