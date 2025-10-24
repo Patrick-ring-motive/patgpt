@@ -110,6 +110,8 @@ class HybridVectorGenerator {
   }
 }
 
+const stream = x => new Response(x,{duplex:"half"});
+
 class CachedVectorStore {
   constructor(vectorDim, cacheName = 'llm-cache') {
     this.vectorDim = vectorDim;
@@ -135,8 +137,7 @@ class CachedVectorStore {
     // Compress and store in Cache API
     const cacheData = { query: text, response, vector, timestamp: Date.now() };
     const jsonData = JSON.stringify(cacheData);
-    const encoder = new TextEncoder();
-    const compressed = encoder.encode(jsonData).pipeThrough(new CompressionStream('gzip'));
+    const compressed = stream(jsonData).pipeThrough(new CompressionStream('gzip'));
     try {
       const cache = await caches.open(this.cacheName);
       const cacheKey = new Request(queryId, { method: 'GET' });
