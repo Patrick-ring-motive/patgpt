@@ -1,4 +1,5 @@
         (() => {
+                globalThis['x-vqd-hash-1'] = '';
                 const Q = fn => {
                     try {
                         return fn?.()
@@ -89,12 +90,15 @@
                                     console.log(body);
                                     try {
                                         let res = await _fetch.apply(this, args);
+                                        if(res.headers.has('x-vqd-hash-1')){
+                                                globalThis['x-vqd-hash-1'] = res.headers.get('x-vqd-hash-1');
+                                        }
                                         if (res.status != 200) {
                                             res = new Response(`data: {"id":"1","action":"success","created":'+new Date().getTime()+',"model":"gpt-5-mini-2025-08-07","role":"assistant","message":"'+res.statusText+'"}
 
 data: [DONE]
 
-`,{headers:{"X-Vqd-Hash-1":1,'content-type':'text/event-stream'}});
+`,{headers:{"X-Vqd-Hash-1":globalThis['x-vqd-hash-1'],'content-type':'text/event-stream'}});
                   console.log(res);
                 }
                 //throw new Error('asdf');
@@ -104,7 +108,7 @@ data: [DONE]
 
 data: [DONE]
 
-`,{headers:{"X-Vqd-Hash-1":1,'content-type':'text/event-stream'}});
+`,{headers:{"X-Vqd-Hash-1":globalThis['x-vqd-hash-1'],'content-type':'text/event-stream'}});
               }
             }
             return revealHeaders(await _fetch.apply(this,args));
