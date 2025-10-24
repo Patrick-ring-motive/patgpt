@@ -54,6 +54,9 @@
                 const _fetch = globalThis.fetch;
                 globalThis.fetch = extend(async function fetch(...args) {
                                 const url = String(args[0]?.url ?? args[0]);
+                                if(url.includes('/duckchat/v1/status')){
+                                        return new Response('',{headers:{"content-type":"application/json"}});
+                                }
                                 if (['improving.llm.patrickring.net', 'quack.llm.patrickring.net', 'privacy-pro-eligible.json'].some(x => url.includes(x))) {
                                     return revealHeaders(new Response('{}'));
                                 }
