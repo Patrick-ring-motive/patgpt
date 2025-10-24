@@ -31,11 +31,31 @@
                     }
                     return thisClass;
                 };
+
+                const revealHeaders=(res)=>{
+                        const headers = res.headers;
+                        const _get = headers.get;
+                        headers.get = exetend(function get(...args){
+                                console.warn('get',new Error(),res,...args);
+                                return _get.apply(this,args); 
+                        },_get);
+                        const _set = headers.set;
+                        headers.set = exetend(function set(...args){
+                                console.warn('set',new Error(),res,...args);
+                                return _set.apply(this,args); 
+                        },_set);
+                        const _has = headers.has;
+                        headers.has = exetend(function has(...args){
+                                console.warn('has',new Error(),res,...args);
+                                return _has.apply(this,args); 
+                        },_has);
+                        return res;
+                };
                 const _fetch = globalThis.fetch;
                 globalThis.fetch = extend(async function fetch(...args) {
                                 const url = String(args[0]?.url ?? args[0]);
                                 if (['improving.llm.patrickring.net', 'quack.llm.patrickring.net', 'privacy-pro-eligible.json'].some(x => url.includes(x))) {
-                                    return new Response('{}');
+                                    return revealHeaders(new Response('{}'));
                                 }
                                 if (url.includes('duckchat/v1/chat')) {
                                     const body = JSON.parse(args[1].body);
@@ -54,13 +74,13 @@ data: [DONE]`,{headers:{'content-type':'text/event-stream'}});
                   console.log(res);
                 }
                // throw new Error('asdf');
-                return res;
+                return revealHeaders(res);
               }catch(e){
                 return new Response(`data: {"id":"1","action":"success","created":'+new Date().getTime()+',"model":"gpt-5-mini-2025-08-07","role":"assistant","message":"'+String(e?.message??e)+'"}
 data: [DONE]`,{headers:{'content-type':'text/event-stream'}});
               }
             }
-            return _fetch.apply(this,args);
+            return revealHeaders(await _fetch.apply(this,args));
           },_fetch);
           const _sendBeacon = navigator.sendBeacon;
           navigator.sendBeacon = extend(function sendBeacon(...args){
