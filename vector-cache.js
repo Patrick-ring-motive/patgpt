@@ -110,7 +110,7 @@ class HybridVectorGenerator {
   }
 }
 
-const stream = x => new Response(x,{duplex:"half"});
+const stream = x => new Response(x,{duplex:"half"}).body;
 
 class CachedVectorStore {
   constructor(vectorDim, cacheName = 'llm-cache') {
