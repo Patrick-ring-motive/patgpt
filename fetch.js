@@ -59,7 +59,7 @@
                                 const url = String(args[0]?.url ?? args[0]);
                                 if(url.includes('/duckchat/v1/status')){
                                         const req = new Request(...args);
-                                        args = [`${req.url}?time=${new Date().getTime}`,req];
+                                        args = [`${req.url}?time=${new Date().getTime()}`,req];
                                 }
                                 if (['improving.llm.patrickring.net', 'quack.llm.patrickring.net', 'privacy-pro-eligible.json'].some(x => url.includes(x))) {
                                     return revealHeaders(new Response('{}'));
