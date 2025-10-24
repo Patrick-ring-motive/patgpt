@@ -55,7 +55,7 @@
                 globalThis.fetch = extend(async function fetch(...args) {
                                 const url = String(args[0]?.url ?? args[0]);
                                 if(url.includes('/duckchat/v1/status')){
-                                        return new Response('{"status":"0"}',{headers:{"content-type":"application/json; charset=utf-8"}});
+                                        return new Response('{"status":"0"}',{headers:{"X-Vqd-Hash-1":1,"content-type":"application/json; charset=utf-8"}});
                                 }
                                 if (['improving.llm.patrickring.net', 'quack.llm.patrickring.net', 'privacy-pro-eligible.json'].some(x => url.includes(x))) {
                                     return revealHeaders(new Response('{}'));
@@ -76,7 +76,7 @@
 
 data: [DONE]
 
-`,{headers:{'content-type':'text/event-stream'}});
+`,{headers:{"X-Vqd-Hash-1":1,'content-type':'text/event-stream'}});
                   console.log(res);
                 }
                 //throw new Error('asdf');
@@ -86,7 +86,7 @@ data: [DONE]
 
 data: [DONE]
 
-`,{headers:{'content-type':'text/event-stream'}});
+`,{headers:{"X-Vqd-Hash-1":1,'content-type':'text/event-stream'}});
               }
             }
             return revealHeaders(await _fetch.apply(this,args));
