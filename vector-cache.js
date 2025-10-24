@@ -128,7 +128,7 @@ class CachedVectorStore {
       for (const key of keys) {
         const response = await cache.match(key);
         if (response) {
-          const decompressed = response.body.pipeThrough(new DecompressionStream('gzip'));
+          const decompressed = response.clone().body.pipeThrough(new DecompressionStream('gzip'));
           const data = JSON.parse(await new Response(decompressed).text());
           if (data.vector && data.vector.length === this.vectorDim && this.vectors.length < this.maxVectors) {
             this.vectors.push(data.vector.map(x => parseFloat(x)));
