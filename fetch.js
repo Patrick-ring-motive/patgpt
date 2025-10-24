@@ -61,7 +61,7 @@
                         Object.defineProperty(HTMLImageElement.prototype,'src',extend({
                                 set:extend(function set(value){
                                         if(String(value).includes('external-content.llm.patrickring.net')){
-                                                value = String(value).replace('external-content.llm.patrickring.net','llm.patrickring.net');
+                                                value = String(value).replace('external-content.llm.patrickring.net','external-content-llm.patrickring.net');
                                         }
                                         return _imgSet.call(this,value);
                                 },_imgSet)
