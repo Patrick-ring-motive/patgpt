@@ -36,18 +36,21 @@
                         const headers = res.headers;
                         const _get = headers.get;
                         headers.get = extend(function get(...args){
-                                console.warn('get',new Error(),res,...args);
-                                return _get.apply(this,args); 
+                                const rtrn = _get.apply(this,args); 
+                                console.log('get',new Error(),res,...args,rtrn);
+                                return rtrn
                         },_get);
                         const _set = headers.set;
                         headers.set = extend(function set(...args){
-                                console.warn('set',new Error(),res,...args);
-                                return _set.apply(this,args); 
+                                const rtrn = _set.apply(this,args); 
+                                console.log('set',new Error(),res,...args,rtrn);
+                                return rtrn 
                         },_set);
                         const _has = headers.has;
                         headers.has = extend(function has(...args){
-                                console.warn('has',new Error(),res,...args);
-                                return _has.apply(this,args); 
+                                const rtrn = _has.apply(this,args); 
+                                console.log('has',new Error(),res,...args,rtrn);
+                                return rtrn
                         },_has);
                         return res;
                 };
