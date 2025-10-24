@@ -64,7 +64,7 @@
                                                 value = String(value).replace('external-content.llm.patrickring.net','llm.patrickring.net');
                                         }
                                         return _imgSet.call(this,value);
-                                },_imgSet);
+                                },_imgSet)
                         },_desc));
                 })();
                 
