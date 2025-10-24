@@ -142,7 +142,7 @@ class CachedVectorStore {
       const cache = await caches.open(this.cacheName);
       const cacheKey = new Request(queryId, { method: 'GET' });
       const cacheValue = new Response(compressed, {
-        headers: { 'Content-Type': 'application/octet-stream' }
+        headers: { 'Content-Type': 'application/octet-stream' , 'Content-Encoding' : 'gzip' }
       });
       await cache.put(cacheKey, cacheValue);
     } catch (e) {
@@ -177,9 +177,7 @@ class CachedVectorStore {
         const cacheKey = new Request(id, { method: 'GET' });
         const response = await cache.match(cacheKey);
         if (response) {
-          const compressed = await response.clone().blob();
-          const decompressed = await compressed.stream().pipeThrough(new DecompressionStream('gzip'));
-          const text = await new Response(decompressed).text();
+          const text = response.clone().text();
           cached = JSON.parse(text);
         }
       } else {
