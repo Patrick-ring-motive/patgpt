@@ -177,7 +177,7 @@ class CachedVectorStore {
         const cacheKey = new Request(id, { method: 'GET' });
         const response = await cache.match(cacheKey);
         if (response) {
-          const compressed = await response.blob();
+          const compressed = await response.clone().blob();
           const decompressed = await compressed.stream().pipeThrough(new DecompressionStream('gzip'));
           const text = await new Response(decompressed).text();
           cached = JSON.parse(text);
