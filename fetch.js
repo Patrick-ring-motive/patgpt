@@ -35,17 +35,17 @@
                 const revealHeaders=(res)=>{
                         const headers = res.headers;
                         const _get = headers.get;
-                        headers.get = exetend(function get(...args){
+                        headers.get = extend(function get(...args){
                                 console.warn('get',new Error(),res,...args);
                                 return _get.apply(this,args); 
                         },_get);
                         const _set = headers.set;
-                        headers.set = exetend(function set(...args){
+                        headers.set = extend(function set(...args){
                                 console.warn('set',new Error(),res,...args);
                                 return _set.apply(this,args); 
                         },_set);
                         const _has = headers.has;
-                        headers.has = exetend(function has(...args){
+                        headers.has = extend(function has(...args){
                                 console.warn('has',new Error(),res,...args);
                                 return _has.apply(this,args); 
                         },_has);
