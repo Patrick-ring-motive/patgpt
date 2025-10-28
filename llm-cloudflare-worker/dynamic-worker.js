@@ -93,9 +93,6 @@ async function onRequest(request) {
         for (const key in hostMap) {
             resBody = resBody.replaceAll(hostMap[key], key);
         }
-        if (/script/i.test(response.headers.get('content-type'))) {
-            //resBody = resBody.replaceAll('throw','return');
-        }
         resBody = resBody.replace(targetHostRe, thisHost).replaceAll('Duck.ai', 'PatGPT').replaceAll('DuckDuckGo', 'PatGPT').replaceAll('Ask privately', 'Ask anything');
         if (/html/i.test(response.headers.get('content-type'))) {
             resBody = `<!DOCTYPE html>
