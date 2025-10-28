@@ -1,104 +1,104 @@
 const hostMap = {
-  'llm.patrickring.net': 'duckduckgo.com',
+    'llm.patrickring.net': 'duckduckgo.com',
 };
 const targetHost = 'duckduckgo.com';
 const targetHostRe = new RegExp(targetHost, 'gi');
 const fetchText = async function fetchText(...args) {
-  const resp = await fetch(...args);
-  return resp.text();
+    const resp = await fetch(...args);
+    return resp.text();
 };
 const setCacheHeaders = (headers, seconds = 96 /*96400*/ ) => {
-  for (const header of ["CDN-Cache-Control", "Cache-Control", "Cloudflare-CDN-Cache-Control", "Surrogate-Control", "Vercel-CDN-Cache-Control"]) {
-      headers.set(header, `public, max-age=${seconds}, s-max-age=${seconds}, stale-if-error=31535000, stale-while-revalidate=31535000`);
-  }
-  for (const header of ['vary', 'etag', 'nel', 'pragma', 'cf-ray']) {
-      headers.delete(header);
-  }
-  headers.set('nel', '{}');
-  headers.set('user-agent', 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_7_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/141.0.7390.96 Mobile/15E148 Safari/604.1');
-  return headers;
+    for (const header of ["CDN-Cache-Control", "Cache-Control", "Cloudflare-CDN-Cache-Control", "Surrogate-Control", "Vercel-CDN-Cache-Control"]) {
+        headers.set(header, `public, max-age=${seconds}, s-max-age=${seconds}, stale-if-error=31535000, stale-while-revalidate=31535000`);
+    }
+    for (const header of ['vary', 'etag', 'nel', 'pragma', 'cf-ray']) {
+        headers.delete(header);
+    }
+    headers.set('nel', '{}');
+    headers.set('user-agent', 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_7_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/141.0.7390.96 Mobile/15E148 Safari/604.1');
+    return headers;
 };
 const transformRequestHeaders = (requestHeaders, replacer) => {
-  const newHeaders = new Headers();
-  for (let [key, value] of requestHeaders) {
-      if (/proto|policy|x.frame.options|x.xss.protection/i.test(key)) continue;
-      if (key === 'referer' && /archive/.test(requestHeaders.get('host'))) continue;
-      for (const key in hostMap) {
-          value = value.replaceAll(key, hostMap[key]);
-      }
-      newHeaders.append(key, value.replace(replacer, targetHost));
-  }
-  return setCacheHeaders(newHeaders, 30);
+    const newHeaders = new Headers();
+    for (let [key, value] of requestHeaders) {
+        if (/proto|policy|x.frame.options|x.xss.protection/i.test(key)) continue;
+        if (key === 'referer' && /archive/.test(requestHeaders.get('host'))) continue;
+        for (const key in hostMap) {
+            value = value.replaceAll(key, hostMap[key]);
+        }
+        newHeaders.append(key, value.replace(replacer, targetHost));
+    }
+    return setCacheHeaders(newHeaders, 30);
 };
 const transformResponseHeaders = (responseHeaders, replacement) => {
-  const newHeaders = new Headers();
-  for (let [key, value] of responseHeaders) {
-    if (/proto|policy|x.frame.options|x.xss.protection/i.test(key)) continue;
-      for (const key in hostMap) {
-          value = value.replaceAll(hostMap[key], key);
-      }
-      newHeaders.append(key, value.replace(targetHostRe, replacement));
-  }
-  return newHeaders;
+    const newHeaders = new Headers();
+    for (let [key, value] of responseHeaders) {
+        if (/proto|policy|x.frame.options|x.xss.protection/i.test(key)) continue;
+        for (const key in hostMap) {
+            value = value.replaceAll(hostMap[key], key);
+        }
+        newHeaders.append(key, value.replace(targetHostRe, replacement));
+    }
+    return newHeaders;
 };
 async function onRequest(request) {
-  if (request.url.includes('/cdn-cgi/rum')) {
-      return new Response(null, {
-          status: 204
-      });
-  }
-  if (request.url.includes('favicon') || /(apple.*touch|android).*icon|assets.icons.meta|\.ico$/i.test(request.url)) {
-      return fetch('https://www.minecraft.net/etc.clientlibs/minecraftnet/clientlibs/clientlib-site/resources/favicon.ico');
-  }
-  if(request.url.includes('/duckchat/v1/status')){
-   request = new Request(`${request.url}?time=${new Date().getTime()}`,request);
-  }
-  const thisHost = `${request.headers.get('host')}`;
-  const thisHostRe = new RegExp(thisHost, 'gi');
-  const requestInit = {
-      method: request.method,
-      headers: transformRequestHeaders(request.headers, thisHostRe),
-  };
-  if (request.body && !/GET|HEAD/.test(request.method)) {
-      requestInit.body = request.body;
-      if (/text|html|script|xml|json/i.test(request.headers.get('content-type'))) {
-          requestInit.body = await request.text();
-          requestInit.headers.delete('content-encoding');
-          requestInit.headers.delete('content-length');
-          for (const key in hostMap) {
-              requestInit.body = requestInit.body.replaceAll(key, hostMap[key]);
-          }
-      }
-  }
-  let url = request.url;
-  for (const key in hostMap) {
-      url = url.replaceAll(key, hostMap[key]);
-  }
-  url = url.replace(thisHostRe, targetHost);
-  if (url.includes('archive')) {
-      requestInit.headers.set('accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7');
-  }
-  console.log(url, requestInit);
-  let response = await fetch(url, requestInit);
-  const responseInit = {
-      status: response.status,
-      statusText: response.statusText,
-      headers: transformResponseHeaders(response.headers, thisHost)
-  };
-  if (url.endsWith('.css')) {
-      responseInit.headers.set('content-type', 'text/css');
-  }
-  if (/text|html|script|xml|json/i.test(response.headers.get('content-type'))) {
-      let resBody = await response.text();
-      for (const key in hostMap) {
-          resBody = resBody.replaceAll(hostMap[key], key);
-      }
-      if(/script/i.test(response.headers.get('content-type'))){
-        //resBody = resBody.replaceAll('throw','return');
-      }
-      resBody = resBody.replace(targetHostRe, thisHost).replaceAll('Duck.ai', 'PatGPT').replaceAll('DuckDuckGo', 'PatGPT').replaceAll('Ask privately', 'Ask anything');
-      if (/html/i.test(response.headers.get('content-type'))) {
-          resBody = `<!DOCTYPE html>
+    if (request.url.includes('/cdn-cgi/rum')) {
+        return new Response(null, {
+            status: 204
+        });
+    }
+    if (request.url.includes('favicon') || /(apple.*touch|android).*icon|assets.icons.meta|\.ico$/i.test(request.url)) {
+        return fetch('https://www.minecraft.net/etc.clientlibs/minecraftnet/clientlibs/clientlib-site/resources/favicon.ico');
+    }
+    if (request.url.includes('/duckchat/v1/status')) {
+        request = new Request(`${request.url}?time=${new Date().getTime()}`, request);
+    }
+    const thisHost = `${request.headers.get('host')}`;
+    const thisHostRe = new RegExp(thisHost, 'gi');
+    const requestInit = {
+        method: request.method,
+        headers: transformRequestHeaders(request.headers, thisHostRe),
+    };
+    if (request.body && !/GET|HEAD/.test(request.method)) {
+        requestInit.body = request.body;
+        if (/text|html|script|xml|json/i.test(request.headers.get('content-type'))) {
+            requestInit.body = await request.text();
+            requestInit.headers.delete('content-encoding');
+            requestInit.headers.delete('content-length');
+            for (const key in hostMap) {
+                requestInit.body = requestInit.body.replaceAll(key, hostMap[key]);
+            }
+        }
+    }
+    let url = request.url;
+    for (const key in hostMap) {
+        url = url.replaceAll(key, hostMap[key]);
+    }
+    url = url.replace(thisHostRe, targetHost);
+    if (url.includes('archive')) {
+        requestInit.headers.set('accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7');
+    }
+    console.log(url, requestInit);
+    let response = await fetch(url, requestInit);
+    const responseInit = {
+        status: response.status,
+        statusText: response.statusText,
+        headers: transformResponseHeaders(response.headers, thisHost)
+    };
+    if (url.endsWith('.css')) {
+        responseInit.headers.set('content-type', 'text/css');
+    }
+    if (/text|html|script|xml|json/i.test(response.headers.get('content-type'))) {
+        let resBody = await response.text();
+        for (const key in hostMap) {
+            resBody = resBody.replaceAll(hostMap[key], key);
+        }
+        if (/script/i.test(response.headers.get('content-type'))) {
+            //resBody = resBody.replaceAll('throw','return');
+        }
+        resBody = resBody.replace(targetHostRe, thisHost).replaceAll('Duck.ai', 'PatGPT').replaceAll('DuckDuckGo', 'PatGPT').replaceAll('Ask privately', 'Ask anything');
+        if (/html/i.test(response.headers.get('content-type'))) {
+            resBody = `<!DOCTYPE html>
         <script>
 
 
@@ -198,21 +198,21 @@ ${await fetchText(`https://raw.githubusercontent.com/Patrick-ring-motive/patgpt/
         </style>
         <meta name="mobile-web-app-capable" content="yes">
         
-        ` + resBody.replace('name="apple-mobile-web-app-capable" content="no"', 'name="apple-mobile-web-app-capable" content="yes"').replace('apple-itunes-app', 'poop').replace('"showAppleAppStoreAds":true', '"showAppleAppStoreAds":false');
-      }
-      if (response.ok &&!request.url.includes('/duckchat/v1/status')) setCacheHeaders(responseInit.headers, 33);
-      response = new Response(resBody, responseInit);
-  } else {
-      if (response.ok && !request.url.includes('/duckchat/v1/status')) setCacheHeaders(responseInit.headers);
-      response = new Response(response.body, responseInit);
-  }
-  for (let [key, value] of requestInit.headers) {
-      responseInit.headers.set(`request-${key}`, value);
-  }
-  return response;
+        ` + resBody.replace('name="apple-mobile-web-app-capable" content="no"', 'name="apple-mobile-web-app-capable" content="yes"').replace('apple-itunes-app', 'noop').replace('"showAppleAppStoreAds":true', '"showAppleAppStoreAds":false');
+        }
+        if (response.ok && !request.url.includes('/duckchat/v1/status')) setCacheHeaders(responseInit.headers, 33);
+        response = new Response(resBody, responseInit);
+    } else {
+        if (response.ok && !request.url.includes('/duckchat/v1/status')) setCacheHeaders(responseInit.headers);
+        response = new Response(response.body, responseInit);
+    }
+    for (let [key, value] of requestInit.headers) {
+        responseInit.headers.set(`request-${key}`, value);
+    }
+    return response;
 };
 export default {
-  async fetch(request, env, ctx) {
-      return onRequest(...arguments);
-  }
+    async fetch(request, env, ctx) {
+        return onRequest(...arguments);
+    }
 };
