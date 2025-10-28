@@ -1,12 +1,7 @@
 const hostMap = {
-    'm-venu.lenguapedia.com': 'm.bulbapedia.bulbagarden.net',
-    'm.venu.lenguapedia.com': 'm.bulbapedia.bulbagarden.net',
-    'venu.lenguapedia.com': 'bulbapedia.bulbagarden.net',
-    'github.lenguapedia.com': 'github.com',
-    'pkg.lenguapedia.com': 'pkg.go.dev',
-    '.lenguapedia.com': '.bulbagarden.net'
+    'patrickring.net': 'github.com',
 };
-const targetHost = 'bulbapedia.bulbagarden.net';
+const targetHost = 'github.com;
 const targetHostRe = new RegExp(targetHost, 'gi');
 const webScriptURL = "https://raw.githubusercontent.com/Patrick-ring-motive/venusaur/refs/heads/main/web";
 const fetchText = async function fetchText(...args) {
