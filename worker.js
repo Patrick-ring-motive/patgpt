@@ -1,6 +1,6 @@
 import { importModule } from './runner.js';
 
-const workerURL = `https://raw.githubusercontent.com/Patrick-ring-motive/venusaur/refs/heads/main/venusaur.js?${new Date().getTime()}`;
+const workerURL = `https://raw.githubusercontent.com/Patrick-ring-motive/patgpt/refs/heads/main/dynamic-worker.js?${new Date().getTime()}`;
 const isPromise = x => x instanceof Promise || typeof x?.then === 'function' || x?.constructor?.name === 'Promise';
 
 
