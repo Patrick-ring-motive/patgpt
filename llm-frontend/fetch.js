@@ -66,6 +66,16 @@
                     }, _imgSet)
                 }, _desc));
             })();
+         const _map = new Map();
+         const sessionMap = {
+                 get(key){
+                    return Q(()=>sessionStorage.getItem(key)) ?? _map.get(key);
+                 },
+                 set(key,value){
+                         Q(()=>sessionStorage.setItem(key,value));
+                         _map.set(key,value);
+                 }
+         };
             const _fetch = globalThis.fetch;
             globalThis.fetch = extend(async function fetch(...args) {
                 const url = String(args[0]?.url ?? args[0]);
@@ -79,16 +89,13 @@
                 if (url.includes('duckchat/v1/chat')) {
                     const body = JSON.parse(args[1].body);
                     body.model = 'gpt-5-mini';
-                    for (const tool in body.metadata.toolChoice) {
-                        // body.metadata.toolChoice[tool]=true;
-                    }
                     body.metadata.toolChoice.WebSearch = true;
                     args[1].body = JSON.stringify(body);
                     console.log(body);
                     try {
                         let res = await _fetch.apply(this, args);
                         if (res.headers.has('x-vqd-hash-1')) {
-                            globalThis['x-vqd-hash-1'] = res.headers.get('x-vqd-hash-1');
+                            sessionMap.set('x-vqd-hash-1', res.headers.get('x-vqd-hash-1'));
                         }
                         if (res.status != 200) {
                             res = new Response(`data: {"id":"1","action":"success","created":'+new Date().getTime()+',"model":"gpt-5-mini-2025-08-07","role":"assistant","message":"'+res.statusText+'"}
@@ -97,7 +104,7 @@ data: [DONE]
 
 `, {
                                 headers: {
-                                    "X-Vqd-Hash-1": globalThis['x-vqd-hash-1'],
+                                    "X-Vqd-Hash-1": sessionMap.get('x-vqd-hash-1'),
                                     'content-type': 'text/event-stream'
                                 }
                             });
@@ -112,7 +119,7 @@ data: [DONE]
 
 `, {
                             headers: {
-                                "X-Vqd-Hash-1": globalThis['x-vqd-hash-1'],
+                                "X-Vqd-Hash-1": sessionMap.get('x-vqd-hash-1'),
                                 'content-type': 'text/event-stream'
                             }
                         });
