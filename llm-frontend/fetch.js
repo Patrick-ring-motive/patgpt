@@ -65,16 +65,16 @@
                     }, _imgSet)
                 }, _desc));
             })();
-         const _map = new Map();
-         const sessionMap = {
-                 get(key){
-                    return Q(()=>sessionStorage.getItem(key)) ?? _map.get(key);
-                 },
-                 set(key,value){
-                         Q(()=>sessionStorage.setItem(key,value));
-                         _map.set(key,value);
-                 }
-         };
+            const _map = new Map();
+            const sessionMap = {
+                get(key) {
+                    return Q(() => sessionStorage.getItem(key)) ?? _map.get(key);
+                },
+                set(key, value) {
+                    Q(() => sessionStorage.setItem(key, value));
+                    _map.set(key, value);
+                }
+            };
             const _fetch = globalThis.fetch;
             globalThis.fetch = extend(async function fetch(...args) {
                 const url = String(args[0]?.url ?? args[0]);
