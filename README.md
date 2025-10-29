@@ -4,7 +4,7 @@ https://llm.patrickring.net/
 
 PatGPT is a highly customized proxy layer built upon a Cloudflare Worker designed to reroute and enhance the functionality of DuckDuckGo's AI chat features (Duck.ai). This project rebrands the service, enforces specific client-side behaviors, injects custom styles, and provides robust error handling and configuration overrides.
 
-## 🚀 Core Architecture and Proxying
+## Core Architecture and Proxying
 
 The project operates as an intermediary proxy, handling all requests destined for the custom host and routing them to the target service while applying extensive transformations [1].
 
@@ -22,7 +22,7 @@ The worker meticulously cleans, transforms, and sets various headers for improve
 *   **User Agent:** A specific mobile user-agent string (`Mozilla/5.0 (iPhone; CPU iPhone OS 17_7_0 like Mac OS X)...`) is enforced on all proxied requests [5].
 *   **Aggressive Caching:** Standard caching headers (`vary`, `etag`, `nel`, `pragma`, `cf-ray`) are deleted [5]. Specific headers like `CDN-Cache-Control` and `Cache-Control` are set [1], applying a cache lifespan of **30 seconds for requests** [6] and **33 seconds for successful responses** [7, 8].
 
-## ✨ Customizations and Feature Overrides
+## Customizations and Feature Overrides
 
 ### 1. Branding and Content Replacement (Server-Side)
 The worker applies several string replacements in the response body if the content is text-based (text, html, script, xml, json) [9]:
@@ -62,6 +62,6 @@ The external `fetch.js` script overrides core browser APIs for advanced runtime 
 *   **Image Source Correction:** The setter for `HTMLImageElement.prototype.src` is modified to fix a specific hostname typo, replacing `'external-content.llm.patrickring.net'` with `'external-content-llm.patrickring.net'` [21].
 *   **Tracking Shutdown:** The `navigator.sendBeacon` function is overridden to immediately return `true`, effectively **disabling client-side reporting** [22].
 
-## 🛣️ Future Development
+## Future Development
 
 *   **Request/Response Caching:** Integration of a **vector database for request/response caching** is intended to drastically reduce latency and reliance on the upstream service for redundant queries.
