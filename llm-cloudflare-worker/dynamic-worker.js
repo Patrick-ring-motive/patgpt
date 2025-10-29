@@ -88,7 +88,7 @@ async function onRequest(request) {
     if (url.endsWith('.css')) {
         responseInit.headers.set('content-type', 'text/css');
     }
-    if (/text|html|script|xml|json/i.test(response.headers.get('content-type'))) {
+    if (/^(?!.*stream).*(text|script|xml|html|json)/i.test(response.headers.get('content-type'))) {
         let resBody = await response.text();
         for (const key in hostMap) {
             resBody = resBody.replaceAll(hostMap[key], key);
