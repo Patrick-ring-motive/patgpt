@@ -1,5 +1,4 @@
         (() => {
-            globalThis['x-vqd-hash-1'] = '';
             const Q = fn => {
                 try {
                     return fn?.()
