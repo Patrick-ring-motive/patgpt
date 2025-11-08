@@ -72,7 +72,7 @@ export default {
       if (vec.length !== generator.vectorDim) return new Response(JSON.stringify({ error: 'dimension mismatch' }), { status: 400 });
       const normalized = normalizeL2(vec);
       // Upsert into your bound index
-      const res = await env.VECTORIZE_INDEX.upsert([{ id, values: normalized, metadata: metadata || { text } }]);
+      const res = await env.PATGPT_VECTOR_CACHE.upsert([{ id, values: normalized, metadata: metadata || { text } }]);
       return new Response(JSON.stringify({ ok: true, result: res }), { headers: { 'Content-Type': 'application/json' }});
     }
 
@@ -81,7 +81,7 @@ export default {
       const qvec = generator.generateVector(text);
       if (qvec.length !== generator.vectorDim) return new Response(JSON.stringify({ error: 'dimension mismatch' }), { status: 400 });
       const normalized = normalizeL2(qvec);
-      const matches = await env.VECTORIZE_INDEX.query(normalized, { topK, returnMetadata: 'all' });
+      const matches = await env.PATGPT_VECTOR_CACHE.query(normalized, { topK, returnMetadata: 'all' });
       return new Response(JSON.stringify({ matches }), { headers: { 'Content-Type': 'application/json' }});
     }
 
