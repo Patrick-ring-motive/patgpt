@@ -90,6 +90,11 @@
                     body.model = 'gpt-5-mini';
                     body.metadata.toolChoice.WebSearch = true;
                     args[1].body = JSON.stringify(body);
+                        try{
+                                args[1].headers ??= new Headers();
+                                args[1].headers['last-message'] = encodeURIComponent(body.messages.filter(x=>x.role==='user').map(y=>y.content).pop());
+                                args[1].headers?.set?.('last-message',args[1].headers['last-message']);
+                        }catch(e){console.warn(e);}
                     console.log(body);
                     try {
                         let res = await _fetch.apply(this, args);
