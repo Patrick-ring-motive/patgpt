@@ -94,7 +94,7 @@ class Stash{
         this.cache = await this.cache;
       }
       const res = await this.cache.match(Stash.urlKey(key));
-      return await res.clone().text();
+      return await res?.clone?.()?.text?.();
     }catch(e){
       console.warn(e,key);
     }
@@ -104,6 +104,7 @@ class Stash{
       if(this.cache instanceof Promise){
         this.cache = await this.cache;
       }
+      console.log('Stash set',key,value);
       return await this.cache.put(Stash.urlKey(key),new Response(value));
     }catch(e){
       console.warn(e,key,value);
@@ -125,6 +126,9 @@ let store;
 
 export default {
   async fetch(request, env) {
+    if(request.headers.get('anti-bot')!=='yes'){
+      return new Response(null,{status:566});
+    }
     if(!store) store = new Stash();
     if(store instanceof Promise)store = await store;
     if(request.url.includes('upsert')){
@@ -135,7 +139,7 @@ export default {
       const vec = generator.generateVector(prompt);
       const normalized = normalizeL2(vec);
       await env.PATGPT_VECTOR_CACHE.upsert([{ id:key, values: normalized}]);
-      store.set(key,text);
+      await store.set(key,text);
       return new Response(null,{status:204});
     }
     if(request.url.includes('query')){
@@ -146,6 +150,7 @@ export default {
       const matches = await env.PATGPT_VECTOR_CACHE.query(normalized, { topK:1, returnValues:true,returnMetadata: 'all' });
       const id = matches?.matches?.[0]?.id;
       if(id){
+        console.log(id);
         return new Response(await store.get(id), { headers: { 'Content-Type': 'application/json' }});
       }
       return new Response(null,{status:404});
