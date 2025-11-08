@@ -62,29 +62,94 @@ function normalizeL2(vec){
   return vec.map(v => v / norm);
 }
 
+const encoder = new TextEncoder();
+const encode = encoder.encode.bind(encoder);
+const decoder = new TextDecoder();
+const decode = decoder.decode.bind(decoder);
+
+
+async function hash(text) {
+  const data = encode(text);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const decoded = decode(hashBuffer);
+  return decoded;
+}
+
+class Stash{
+  constructor(name=''){
+    try{
+      this.cache = caches.open('stash'+String(name));
+    }catch(e){
+      console.warn(e);
+    }
+  }
+  static urlKey(key){
+    const url = new URL('https://stash.store/');
+    url.searchParams.set('key',String(key));
+    return String(url);
+  }
+  async get(key){
+    try{
+      if(this.cache instanceof Promise){
+        this.cache = await this.cache;
+      }
+      const res = await this.cache.match(Stash.urlKey(key));
+      return await res.clone().text();
+    }catch(e){
+      console.warn(e,key);
+    }
+  }
+  async set(key,value){
+    try{
+      if(this.cache instanceof Promise){
+        this.cache = await this.cache;
+      }
+      return await this.cache.put(Stash.urlKey(key),new Response(value));
+    }catch(e){
+      console.warn(e,key,value);
+    }
+  }
+  async delete(key){
+    try{
+      if(this.cache instanceof Promise){
+        this.cache = await this.cache;
+      }
+      return await this.cache.delete(Stash.urlKey(key));
+    }catch(e){
+      console.warn(e,key);
+    }
+  }
+}
+
+let store;
+
 export default {
   async fetch(request, env) {
-    // Simple routing by path
-    const url = new URL(request.url);
-    if (url.pathname === '/upsert' && request.method === 'POST') {
-      const { id, text, metadata } = await request.json();
-      const vec = generator.generateVector(text);
-      if (vec.length !== generator.vectorDim) return new Response(JSON.stringify({ error: 'dimension mismatch' }), { status: 400 });
+    if(!store) store = new Stash();
+    if(store instanceof Promise)store = await store;
+    if(request.url.includes('upsert')){
+      const text = await request.text();
+      const {prompt} = JSON.parse(text);
+      if(!/[a-z]/i.test(prompt))return new Response(null,{status:400});
+      const key = await hash(prompt);
+      const vec = generator.generateVector(prompt);
       const normalized = normalizeL2(vec);
-      // Upsert into your bound index
-      const res = await env.PATGPT_VECTOR_CACHE.upsert([{ id, values: normalized, metadata: metadata || { text } }]);
-      return new Response(JSON.stringify({ ok: true, result: res }), { headers: { 'Content-Type': 'application/json' }});
+      await env.PATGPT_VECTOR_CACHE.upsert([{ id:key, values: normalized}]);
+      store.set(key,text);
+      return new Response(null,{status:204});
+    }
+    if(request.url.includes('query')){
+      const {prompt} = await request.json();
+      if(!/[a-z]/i.test(prompt))return new Response(null,{status:400});
+      const vec = generator.generateVector(prompt);
+      const normalized = normalizeL2(vec);
+      const matches = await env.PATGPT_VECTOR_CACHE.query(normalized, { topK:1, returnValues:true,returnMetadata: 'all' });
+      const id = matches?.matches?.[0]?.id;
+      if(id){
+        return new Response(await store.get(id), { headers: { 'Content-Type': 'application/json' }});
+      }
+      return new Response(null,{status:404});
     }
 
-    if (url.pathname === '/query' && request.method === 'POST') {
-      const { text, topK = 5 } = await request.json();
-      const qvec = generator.generateVector(text);
-      if (qvec.length !== generator.vectorDim) return new Response(JSON.stringify({ error: 'dimension mismatch' }), { status: 400 });
-      const normalized = normalizeL2(qvec);
-      const matches = await env.PATGPT_VECTOR_CACHE.query(normalized, { topK, returnMetadata: 'all' });
-      return new Response(JSON.stringify({ matches }), { headers: { 'Content-Type': 'application/json' }});
-    }
-
-    return new Response('Not found', { status: 404 });
   }
 };
