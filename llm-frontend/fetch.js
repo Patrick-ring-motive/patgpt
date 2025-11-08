@@ -93,7 +93,7 @@
                     console.log(body);
                     try {
                         let res = await _fetch.apply(this, args);
-                        if (res.headers.has('x-vqd-hash-1')) {
+                        if (res.headers.has('x-vqd-hash-1') && res.headers.get('x-vqd-hash-1') != 'null'  && res.headers.get('x-vqd-hash-1') != 'undefined') {
                             sessionMap.set('x-vqd-hash-1', res.headers.get('x-vqd-hash-1'));
                         }
                         if (res.status != 200) {
