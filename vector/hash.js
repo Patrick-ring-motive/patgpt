@@ -4,7 +4,7 @@ const decoder = new TextDecoder();
 const decode = decoder.decode.bind(decoder);
 
 
-async function sha256(text) {
+async function hash(text) {
   const data = encode(text);
   const hashBuffer = await crypto.subtle.digest('SHA-256', data);
   return decode(hashBuffer);
