@@ -97,7 +97,7 @@
                             sessionMap.set('x-vqd-hash-1', res.headers.get('x-vqd-hash-1'));
                         }
                         if (res.status != 200) {
-                            res = new Response(`data: {"id":"1","action":"success","created":'+new Date().getTime()+',"model":"gpt-5-mini-2025-08-07","role":"assistant","message":"'+res.statusText+'"}
+                            res = new Response(`data: {"id":"1","action":"success","created":`+new Date().getTime()+',"model":"gpt-5-mini-2025-08-07","role":"assistant","message":"'+res.statusText+`"}
 
 data: [DONE]
 
@@ -112,7 +112,7 @@ data: [DONE]
                         //throw new Error('asdf');
                         return revealHeaders(res);
                     } catch (e) {
-                        return new Response(`data: {"id":"1","action":"success","created":'+new Date().getTime()+',"model":"gpt-5-mini-2025-08-07","role":"assistant","message":"'+String(e?.message??e)+'"}
+                        return new Response(`data: {"id":"1","action":"success","created":`+new Date().getTime()+',"model":"gpt-5-mini-2025-08-07","role":"assistant","message":"'+String(e?.message??e)+`"}
 
 data: [DONE]
 
