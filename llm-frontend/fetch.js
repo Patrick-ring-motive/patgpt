@@ -1,4 +1,16 @@
-        (() => {
+        (()=>{
+                setInterval(()=>{
+                        const arr = [...document.querySelectorAll('a[target="_blank"]:not([href],[retried])')];
+                        for(const a of arr){
+                                if(a.textContent === 'Try Again'){
+                                        a.setAttribute('retried','true');
+                                        a.click();
+                                }
+                        }
+                },100);                
+        })();
+
+(() => {
             const Q = fn => {
                 try {
                     return fn?.()
