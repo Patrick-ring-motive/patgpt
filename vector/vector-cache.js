@@ -127,7 +127,7 @@ let store;
 export default {
   async fetch(request, env) {
     if(request.headers.get('anti-bot')!=='yes'){
-      return new Response(null,{status:566});
+      return new Response("hello");
     }
     if(!store) store = new Stash();
     if(store instanceof Promise)store = await store;
@@ -140,7 +140,12 @@ export default {
       const normalized = normalizeL2(vec);
       await env.PATGPT_VECTOR_CACHE.upsert([{ id:key, values: normalized}]);
       await store.set(key,text);
-      return new Response(null,{status:204});
+      return new Response(null,{
+        status:204,
+        headers:{
+          'Access-Control-Allow-Origin':'*'
+        }
+      });
     }
     if(request.url.includes('query')){
       const {prompt} = await request.json();
@@ -151,7 +156,12 @@ export default {
       const id = matches?.matches?.[0]?.id;
       if(id){
         console.log(id);
-        return new Response(await store.get(id), { headers: { 'Content-Type': 'application/json' }});
+        return new Response(await store.get(id), { 
+          headers: { 
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin':'*'
+          }
+        });
       }
       return new Response(null,{status:404});
     }
