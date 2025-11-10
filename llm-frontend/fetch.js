@@ -114,9 +114,9 @@
         console.log(lines);
       }catch(e){
         console.warn(e);
-        console.log([...document.querySelectorAll('[data-activeresponse="true"] p')].pop().textContent);
+        console.log([...docSelectAll('[data-activeresponse="true"]:has(p)')].pop().innerText);
         await nextIdle();
-        console.log([...document.querySelectorAll('[data-activeresponse="true"] p')].pop().textContent);  
+        console.log([...docSelectAll('[data-activeresponse="true"]:has(p)')].pop().innerText);
       }
      /* return await $fetch(`${atob(cacheURL)}/upsert`, {
         method: 'POST',
