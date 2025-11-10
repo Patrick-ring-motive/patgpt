@@ -30,7 +30,10 @@
           }
           const texts = [...docSelectAll('[text]')];
           for (const text of texts) {
-            const content = String(text.textContent || '').trim();
+            let content = String(text.textContent || '').trim();
+            if(content === 'GPT-4o mini'){
+              content = 'Cached Response';
+            }
             if (text.getAttribute('text') != content) {
               text.setAttribute('text', content);
             }
