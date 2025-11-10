@@ -21,7 +21,7 @@
                   }
                   const singles = [...docSelectAll(':not([text],:has(*))')];
                   for (const single of singles) {
-                      sinlge.setAttribute('text',single.textContent.trim());
+                      single.setAttribute('text',single.textContent.trim());
                   }
               } catch (e) {
                   console.warn(e);
