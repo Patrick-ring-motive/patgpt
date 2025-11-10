@@ -111,7 +111,7 @@
       let lines = response.split('\n');
       lines = lines.map(x=>x.replace('data:','').trim()).filter(x=>x).map(parse).map(x=>x.message);
       console.log(lines);return;
-      return await $fetch(`${atob(cacheURL)}/upsert`, {
+     /* return await $fetch(`${atob(cacheURL)}/upsert`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -121,7 +121,7 @@
           prompt,
           response
         })
-      });
+      });*/
     };
     (() => {
       const _desc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
