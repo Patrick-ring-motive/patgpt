@@ -101,8 +101,16 @@
         });
       }
     };
+    const parse = x =>{
+      try{
+        return JSON.parse(x);
+      }catch{}
+    };
     const upsert = async (cacheURL, prompt, response) => {
-      response = await response.text();
+      response = await response.clone().text();
+      let lines = response.split('\n');
+      lines = lines.map(x=>x.replace('data:','').trim()).filter(x=>x).map(parse).map(x=>x.message);
+      console.log(lines);return;
       return await $fetch(`${atob(cacheURL)}/upsert`, {
         method: 'POST',
         headers: {
@@ -141,6 +149,7 @@
     const _fetch = globalThis.fetch;
     globalThis.fetch = extend(async function fetch(...args) {
       let canCache = false;
+      let prompt = '';
       if (cacheURL instanceof Promise) {
         cacheURL = await cacheURL;
         sessionMap.set('CACHE_URL', cacheURL);
@@ -163,6 +172,7 @@
           const messages = body.messages.filter(x => x.role === 'user').map(y => y.content);
           if (messages.length > 1) {
             canCache = true;
+            prompt = messages.slice(-2).join(' ').trim();
           }
           args[1].headers['last-message'] = encodeURIComponent(messages.pop());
           args[1].headers?.set?.('last-message', args[1].headers['last-message']);
@@ -176,6 +186,7 @@
             sessionMap.set('x-vqd-hash-1', res.headers.get('x-vqd-hash-1'));
           }
           if (res.status != 200) {
+            canCache = false;
             res = new Response(`data: {"id":"1","action":"success","created":` + new Date().getTime() + ',"model":"gpt-5-mini-2025-08-07","role":"assistant","message":"' + res.statusText + `"}
 
 data: [DONE]
@@ -188,8 +199,12 @@ data: [DONE]
             });
             console.log(res);
           }
+          if(cachCache && prompt){
+            upsert(cacheURL,prompt,res);
+          }
           return revealHeaders(res);
         } catch (e) {
+          canCache = false;
           return new Response(`data: {"id":"1","action":"success","created":` + new Date().getTime() + ',"model":"gpt-5-mini-2025-08-07","role":"assistant","message":"' + String(e?.message ?? e) + `"}
 
 data: [DONE]
