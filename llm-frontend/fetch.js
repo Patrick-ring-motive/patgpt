@@ -1,16 +1,15 @@
-        (()=>{
-                setInterval(()=>{
-                        const arr = [...document.querySelectorAll('a[target="_blank"]:not([href],[retried])')];
-                        for(const a of arr){
-                                if(a.textContent === 'Try Again'){
-                                        a.setAttribute('retried','true');
-                                        a.click();
-                                }
-                        }
-                },100);                
+        (() => {
+            setInterval(() => {
+                const arr = [...document.querySelectorAll('a[target="_blank"]:not([href],[retried])')];
+                for (const a of arr) {
+                    if (a.textContent === 'Try Again') {
+                        a.setAttribute('retried', 'true');
+                        a.click();
+                    }
+                }
+            }, 100);
         })();
-
-(() => {
+        (() => {
             const Q = fn => {
                 try {
                     return fn?.()
@@ -65,27 +64,27 @@
                 }, _has);
                 return res;
             };
-
-            const $fetch = async function $fetch(...args){
-                    try{
-                            return await fetch(...args);
-                    }catch(e){
-                            return new Response(String(e?.message ??e),{status:500});
-                    }
+            const $fetch = async function $fetch(...args) {
+                try {
+                    return await fetch(...args);
+                } catch (e) {
+                    return new Response(String(e?.message ?? e), {
+                        status: 500
+                    });
+                }
             };
-        
-            const upsert = async(cacheURL,prompt,respponse)=>{
-                    return await $fetch(`${atob(cacheURL)}/upsert`, {
-                          method: 'POST',
-                          headers: { 
-                              'Content-Type': 'application/json',
-                              'anti-bot':'yes',
-                          },
-                          body: JSON.stringify({
-                            prompt,
-                            response
-                          })
-                        });
+            const upsert = async (cacheURL, prompt, respponse) => {
+                return await $fetch(`${atob(cacheURL)}/upsert`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'anti-bot': 'yes',
+                    },
+                    body: JSON.stringify({
+                        prompt,
+                        response
+                    })
+                });
             };
             (() => {
                 const _desc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
@@ -109,12 +108,12 @@
                     _map.set(key, value);
                 }
             };
-            let cacheURL = sessionMap.get('CACHE_URL') || $fetch('/CACHE_URL').then(res=>res.text());
+            let cacheURL = sessionMap.get('CACHE_URL') || $fetch('/CACHE_URL').then(res => res.text());
             const _fetch = globalThis.fetch;
             globalThis.fetch = extend(async function fetch(...args) {
-                if(cacheURL instanceof Promise){
-                        cacheURL = await cacheURL;
-                        sessionMap.set('CACHE_URL',cacheURL);
+                if (cacheURL instanceof Promise) {
+                    cacheURL = await cacheURL;
+                    sessionMap.set('CACHE_URL', cacheURL);
                 }
                 const url = String(args[0]?.url ?? args[0]);
                 if (url.includes('/duckchat/v1/status')) {
@@ -129,19 +128,21 @@
                     body.model = 'gpt-5-mini';
                     body.metadata.toolChoice.WebSearch = true;
                     args[1].body = JSON.stringify(body);
-                        try{
-                                args[1].headers ??= new Headers();
-                                args[1].headers['last-message'] = encodeURIComponent(body.messages.filter(x=>x.role==='user').map(y=>y.content).pop());
-                                args[1].headers?.set?.('last-message',args[1].headers['last-message']);
-                        }catch(e){console.warn(e);}
+                    try {
+                        args[1].headers ??= new Headers();
+                        args[1].headers['last-message'] = encodeURIComponent(body.messages.filter(x => x.role === 'user').map(y => y.content).pop());
+                        args[1].headers?.set?.('last-message', args[1].headers['last-message']);
+                    } catch (e) {
+                        console.warn(e);
+                    }
                     console.log(body);
                     try {
                         let res = await _fetch.apply(this, args);
-                        if (res.headers.has('x-vqd-hash-1') && res.headers.get('x-vqd-hash-1') != 'null'  && res.headers.get('x-vqd-hash-1') != 'undefined') {
+                        if (res.headers.has('x-vqd-hash-1') && res.headers.get('x-vqd-hash-1') != 'null' && res.headers.get('x-vqd-hash-1') != 'undefined') {
                             sessionMap.set('x-vqd-hash-1', res.headers.get('x-vqd-hash-1'));
                         }
                         if (res.status != 200) {
-                            res = new Response(`data: {"id":"1","action":"success","created":`+new Date().getTime()+',"model":"gpt-5-mini-2025-08-07","role":"assistant","message":"'+res.statusText+`"}
+                            res = new Response(`data: {"id":"1","action":"success","created":` + new Date().getTime() + ',"model":"gpt-5-mini-2025-08-07","role":"assistant","message":"' + res.statusText + `"}
 
 data: [DONE]
 
@@ -156,7 +157,7 @@ data: [DONE]
                         //throw new Error('asdf');
                         return revealHeaders(res);
                     } catch (e) {
-                        return new Response(`data: {"id":"1","action":"success","created":`+new Date().getTime()+',"model":"gpt-5-mini-2025-08-07","role":"assistant","message":"'+String(e?.message??e)+`"}
+                        return new Response(`data: {"id":"1","action":"success","created":` + new Date().getTime() + ',"model":"gpt-5-mini-2025-08-07","role":"assistant","message":"' + String(e?.message ?? e) + `"}
 
 data: [DONE]
 
