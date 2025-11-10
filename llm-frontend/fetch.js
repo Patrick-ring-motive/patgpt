@@ -150,7 +150,7 @@
                   if (messages.length > 1) {
                       canCache = true;
                   }
-                  args[1].headers['last-message'] = encodeURIComponent(messages.slice(-2).join(' '));
+                  args[1].headers['last-message'] = encodeURIComponent(messages.pop());
                   args[1].headers?.set?.('last-message', args[1].headers['last-message']);
               } catch (e) {
                   console.warn(e);
