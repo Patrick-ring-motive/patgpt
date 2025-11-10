@@ -107,10 +107,15 @@
       }catch{}
     };
     const upsert = async (cacheURL, prompt, response) => {
-      response = await response.clone().text();
-      let lines = response.split('\n');
-      lines = lines.map(x=>x.replace('data:','').trim()).filter(x=>x).map(parse).map(x=>x.message);
-      console.log(lines);return;
+      try{
+        response = await response.clone().text();
+        let lines = response.split('\n');
+        lines = lines.map(x=>x.replace('data:','').trim()).filter(x=>x).map(parse).map(x=>x.message);
+        console.log(lines);
+      }catch(e){
+        console.warn(e);
+        console.log([...document.querySelectorAll('[data-activeresponse="true"] p')].pop().textContent);
+      }
      /* return await $fetch(`${atob(cacheURL)}/upsert`, {
         method: 'POST',
         headers: {
