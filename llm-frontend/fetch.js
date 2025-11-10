@@ -8,10 +8,11 @@
         Q(()=>document.querySelectorAll(query)) ??
         document.createElement('NodeList').childNodes;
       const callback = Q(() => requestIdleCallback) ?? requestAnimationFrame;
-      const nextIdle = () => new Promise(callback);
+      const nextIdle = () => new Promise(resolve=>callback(resolve));
       (async () => {
-          while (await nextIdle()) {
+          while (true) {
               try {
+                  await nextIdle();
                   const retries = [...docSelectAll('a[target="_blank"]:not([href],[retried])')];
                   for (const retry of retries) {
                       if (retry.textContent === 'Try Again') {
