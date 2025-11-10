@@ -73,7 +73,8 @@
                     });
                 }
             };
-            const upsert = async (cacheURL, prompt, respponse) => {
+            const upsert = async (cacheURL, prompt, response) => {
+                response = await response.text();
                 return await $fetch(`${atob(cacheURL)}/upsert`, {
                     method: 'POST',
                     headers: {
