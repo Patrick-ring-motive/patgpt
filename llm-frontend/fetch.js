@@ -1,20 +1,27 @@
-        (() => {
-            setInterval(() => {
-                const arr = [...document.querySelectorAll('a[target="_blank"]:not([href],[retried])')];
-                for (const a of arr) {
-                    if (a.textContent === 'Try Again') {
-                        a.setAttribute('retried', 'true');
-                        a.click();
-                    }
-                }
-            }, 100);
-        })();
+  
         (() => {
             const Q = fn => {
                 try {
                     return fn?.()
                 } catch {}
             };
+            const callback = Q(()=>requestIdleCallback) ?? requestAnimationFrame; 
+            const nextIdle = () => new Promise(callback);
+            (async()=>{
+                    while(await nextIdle()){
+                            try{
+                                   const retries = [...document.querySelectorAll('a[target="_blank"]:not([href],[retried])')];
+                for (const retry of retries) {
+                    if (retry.textContent === 'Try Again') {
+                        retry.setAttribute('retried', 'true');
+                        retry.click();
+                    }
+                } 
+                            }catch(e){
+                                  console.warn(e);  
+                            }
+                    }
+            })();
             const constructPrototype = newClass => {
                 try {
                     if (newClass?.prototype) return newClass;
