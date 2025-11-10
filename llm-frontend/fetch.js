@@ -199,7 +199,7 @@ data: [DONE]
             });
             console.log(res);
           }
-          if(cachCache && prompt){
+          if(canCache && prompt){
             upsert(cacheURL,prompt,res);
           }
           return revealHeaders(res);
