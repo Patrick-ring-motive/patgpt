@@ -101,6 +101,9 @@
         });
       }
     };
+    const getText = ()=>{
+      return String([...docSelectAll('[data-activeresponse="true"]:has(p)')].pop().innerText||'').trim().replace(/^Search/,'').trim().replace(/GPT-4o mini/,'').trim();
+    };
     const parse = x =>{
       try{
         return JSON.parse(x);
@@ -114,9 +117,9 @@
         console.log(lines);
       }catch(e){
         console.warn(e);
-        console.log([...docSelectAll('[data-activeresponse="true"]:has(p)')].pop().innerText);
+        console.log(getText());
         await nextIdle();
-        console.log([...docSelectAll('[data-activeresponse="true"]:has(p)')].pop().innerText);
+        console.log(getText());
       }
      /* return await $fetch(`${atob(cacheURL)}/upsert`, {
         method: 'POST',
