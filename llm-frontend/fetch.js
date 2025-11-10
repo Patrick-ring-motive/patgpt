@@ -13,6 +13,7 @@
           while (true) {
               try {
                   await nextIdle();
+                if(document.hidden || document.visibilityState != 'visible')continue;
                   const retries = [...docSelectAll('a[target="_blank"]:not([href],[retried])')];
                   for (const retry of retries) {
                       if (retry.textContent === 'Try Again') {
