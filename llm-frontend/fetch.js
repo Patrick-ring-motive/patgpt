@@ -70,28 +70,6 @@
       }
       return thisClass;
     };
-    const revealHeaders = (res) => {
-      const headers = res.headers;
-      const _get = headers.get;
-      headers.get = extend(function get(...args) {
-        const rtrn = _get.apply(this, args);
-        console.log('get', new Error(), res, ...args, rtrn);
-        return rtrn
-      }, _get);
-      const _set = headers.set;
-      headers.set = extend(function set(...args) {
-        const rtrn = _set.apply(this, args);
-        console.log('set', new Error(), res, ...args, rtrn);
-        return rtrn
-      }, _set);
-      const _has = headers.has;
-      headers.has = extend(function has(...args) {
-        const rtrn = _has.apply(this, args);
-        console.log('has', new Error(), res, ...args, rtrn);
-        return rtrn
-      }, _has);
-      return res;
-    };
     const $fetch = async function $fetch(...args) {
       try {
         return await fetch(...args);
@@ -121,7 +99,7 @@
         await nextIdle();
         console.log(getText());
       }
-     /* return await $fetch(`${atob(cacheURL)}/upsert`, {
+      return await $fetch(`${atob(cacheURL)}/upsert`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -131,7 +109,7 @@
           prompt,
           response
         })
-      });*/
+      });
     };
     (() => {
       const _desc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
@@ -170,7 +148,7 @@
         args = [`${req.url}?time=${new Date().getTime()}`, req];
       }
       if (['improving.llm.patrickring.net', 'quack.llm.patrickring.net', 'privacy-pro-eligible.json'].some(x => url.includes(x))) {
-        return revealHeaders(new Response('{}'));
+        return new Response('{}');
       }
       if (url.includes('duckchat/v1/chat')) {
         const body = JSON.parse(args[1].body);
@@ -184,7 +162,7 @@
             canCache = true;
             prompt = messages.slice(-2).join(' ').trim();
           }
-          args[1].headers['last-message'] = encodeURIComponent(messages.pop());
+          args[1].headers['last-message'] = encodeURIComponent(prompt ?? messages.pop());
           args[1].headers?.set?.('last-message', args[1].headers['last-message']);
         } catch (e) {
           console.warn(e);
@@ -212,7 +190,7 @@ data: [DONE]
           if(canCache && prompt){
             upsert(cacheURL,prompt,res);
           }
-          return revealHeaders(res);
+          return res;
         } catch (e) {
           canCache = false;
           return new Response(`data: {"id":"1","action":"success","created":` + new Date().getTime() + ',"model":"gpt-5-mini-2025-08-07","role":"assistant","message":"' + String(e?.message ?? e) + `"}
@@ -227,7 +205,7 @@ data: [DONE]
           });
         }
       }
-      return revealHeaders(await _fetch.apply(this, args));
+      return await _fetch.apply(this, args);
     }, _fetch);
     const _sendBeacon = navigator.sendBeacon;
     navigator.sendBeacon = extend(function sendBeacon(...args) {
