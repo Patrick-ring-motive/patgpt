@@ -24,6 +24,12 @@
                   for (const single of singles) {
                       single.setAttribute('text',single.textContent.trim());
                   }
+                  const texts = [...docSelectAll('[text]')];
+                  for (const text of texts) {
+                      if(text.getAttribute('text') != text.textContent){
+                        text.setAttribute('text',text.textContent);
+                      }
+                  }
               } catch (e) {
                   console.warn(e);
               }
