@@ -111,6 +111,7 @@
             let cacheURL = sessionMap.get('CACHE_URL') || $fetch('/CACHE_URL').then(res => res.text());
             const _fetch = globalThis.fetch;
             globalThis.fetch = extend(async function fetch(...args) {
+                let canCache = false;
                 if (cacheURL instanceof Promise) {
                     cacheURL = await cacheURL;
                     sessionMap.set('CACHE_URL', cacheURL);
@@ -130,7 +131,11 @@
                     args[1].body = JSON.stringify(body);
                     try {
                         args[1].headers ??= new Headers();
-                        args[1].headers['last-message'] = encodeURIComponent(body.messages.filter(x => x.role === 'user').map(y => y.content).pop());
+                        const messages = body.messages.filter(x => x.role === 'user').map(y => y.content);
+                        if(messages.length > 1){
+                                canCache = true;
+                        }
+                        args[1].headers['last-message'] = encodeURIComponent(messages.slice(-2).join(' '));
                         args[1].headers?.set?.('last-message', args[1].headers['last-message']);
                     } catch (e) {
                         console.warn(e);
