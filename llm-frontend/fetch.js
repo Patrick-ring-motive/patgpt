@@ -4,19 +4,22 @@
               return fn?.()
           } catch {}
       };
+      const docSelectAll = query =>
+        Q(()=>document.querySelectorAll(query)) ??
+        document.createElement('NodeList').childNodes;
       const callback = Q(() => requestIdleCallback) ?? requestAnimationFrame;
       const nextIdle = () => new Promise(callback);
       (async () => {
           while (await nextIdle()) {
               try {
-                  const retries = [...document.querySelectorAll('a[target="_blank"]:not([href],[retried])')];
+                  const retries = [...docSelectAll('a[target="_blank"]:not([href],[retried])')];
                   for (const retry of retries) {
                       if (retry.textContent === 'Try Again') {
                           retry.setAttribute('retried', 'true');
                           retry.click();
                       }
                   }
-                  const singles = [...document.querySelectorAll(':not([text],:has(*))')];
+                  const singles = [...docSelectAll(':not([text],:has(*))')];
                   for (const single of singles) {
                       sinlge.setAttribute('text',single.textContent.trim());
                   }
