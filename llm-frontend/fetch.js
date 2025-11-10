@@ -4,16 +4,16 @@
               return fn?.()
           } catch {}
       };
-      const docSelectAll = query =>
-        Q(()=>document.querySelectorAll(query)) ??
-        document.createElement('NodeList').childNodes;
+      const docSelectAll = query => Q(() => document.querySelectorAll(query)) ?? document.createElement('NodeList').childNodes;
       const callback = Q(() => requestIdleCallback) ?? requestAnimationFrame;
-      const nextIdle = () => new Promise(resolve=>callback(resolve));
+      const nextIdle = () => new Promise(resolve => callback(resolve));
       (async () => {
           while (true) {
               try {
                   await nextIdle();
-                if(document.hidden || document.visibilityState != 'visible')continue;
+                  if (document.hidden || (document.visibilityState && document.visibilityState != 'visible') || navigator.scheduling?.isInputPending?.() || (document.readyState && document.readyState != 'complete') || navigator?.userActivation?.isActive === false || document.hasFocus?.() === false) {
+                      continue;
+                  }
                   const retries = [...docSelectAll('a[target="_blank"]:not([href],[retried])')];
                   for (const retry of retries) {
                       if (retry.textContent === 'Try Again') {
@@ -23,12 +23,12 @@
                   }
                   const singles = [...docSelectAll(':not([text],:has(*))')];
                   for (const single of singles) {
-                      single.setAttribute('text',single.textContent.trim());
+                      single.setAttribute('text', single.textContent.trim());
                   }
                   const texts = [...docSelectAll('[text]')];
                   for (const text of texts) {
-                      if(text.getAttribute('text') != text.textContent){
-                        text.setAttribute('text',text.textContent);
+                      if (text.getAttribute('text') != text.textContent) {
+                          text.setAttribute('text', text.textContent);
                       }
                   }
               } catch (e) {
