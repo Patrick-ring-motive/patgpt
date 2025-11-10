@@ -88,16 +88,18 @@
       }catch{}
     };
     const upsert = async (cacheURL, prompt, response) => {
+      let lines;
       try{
         response = await response.clone().text();
-        let lines = response.split('\n');
+        lines = response.split('\n');
         lines = lines.map(x=>x.replace('data:','').trim()).filter(x=>x).map(parse).map(x=>x.message);
         console.log(lines);
       }catch(e){
         console.warn(e);
         console.log(getText());
         await nextIdle();
-        console.log(getText());
+        lines = getText();
+        console.log(lines);
       }
       return await $fetch(`${atob(cacheURL)}/upsert`, {
         method: 'POST',
@@ -107,7 +109,7 @@
         },
         body: JSON.stringify({
           prompt,
-          response
+          response:lines
         })
       });
     };
