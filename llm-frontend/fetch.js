@@ -154,7 +154,6 @@ data: [DONE]
                             });
                             console.log(res);
                         }
-                        //throw new Error('asdf');
                         return revealHeaders(res);
                     } catch (e) {
                         return new Response(`data: {"id":"1","action":"success","created":` + new Date().getTime() + ',"model":"gpt-5-mini-2025-08-07","role":"assistant","message":"' + String(e?.message ?? e) + `"}
