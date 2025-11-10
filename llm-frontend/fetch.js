@@ -65,6 +65,28 @@
                 }, _has);
                 return res;
             };
+
+            const $fetch = async function $fetch(...args){
+                    try{
+                            return await fetch(...args);
+                    }catch(e){
+                            return new Response(String(e?.message ??e),{status:500});
+                    }
+            };
+        
+            const upsert = async(cacheURL,prompt,respponse)=>{
+                    return await $fetch(`${atob(cacheURL)}/upsert`, {
+                          method: 'POST',
+                          headers: { 
+                              'Content-Type': 'application/json',
+                              'anti-bot':'yes',
+                          },
+                          body: JSON.stringify({
+                            prompt,
+                            response
+                          })
+                        });
+            };
             (() => {
                 const _desc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
                 const _imgSet = _desc.set;
@@ -87,8 +109,13 @@
                     _map.set(key, value);
                 }
             };
+            let cacheURL = sessionMap.get('CACHE_URL') || $fetch('/CACHE_URL').then(res=>res.text());
             const _fetch = globalThis.fetch;
             globalThis.fetch = extend(async function fetch(...args) {
+                if(cacheURL instanceof Promise){
+                        cacheURL = await cacheURL;
+                        sessionMap.set('CACHE_URL',cacheURL);
+                }
                 const url = String(args[0]?.url ?? args[0]);
                 if (url.includes('/duckchat/v1/status')) {
                     const req = new Request(...args);
