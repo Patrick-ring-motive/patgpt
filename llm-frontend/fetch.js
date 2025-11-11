@@ -4,44 +4,45 @@
         return fn?.()
       } catch {}
     };
-    const sleep = (ms)=>new Promise(resolve=>setTimeout(resolve,ms));
-    const postTask = (callback, options = {}) => scheduler.postTask(callback, {priority: "background", ...options});
-    const delay = (fn,time=1)=>setTimeout(fn,time);
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    const postTask = (callback, options = {}) => scheduler.postTask(callback, {
+      priority: "background",
+      ...options
+    });
+    const delay = (fn, time = 1) => setTimeout(fn, time);
     const docSelectAll = query => Q(() => document.querySelectorAll(query)) ?? document.createElement('NodeList').childNodes;
-    const callback = Q(() => requestIdleCallback) ?? Q(()=>scheduler)?.postTask ? postTask : Q(()=>requestAnimationFrame) ?? delay;
+    const callback = Q(() => requestIdleCallback) ?? Q(() => scheduler)?.postTask ? postTask : Q(() => requestAnimationFrame) ?? delay;
     const nextIdle = () => new Promise(resolve => callback(resolve));
-    const tecodeComponent = x =>{
-  try{
-    return decodeURIComponent(x);
-  }catch{
-    return String(x);
-  }
-};
-
-const recodeComponent = x => String(x).replace(/%[A-F0-9]{2}/g,tecodeComponent);
-
-const decodeComponent = x => {
-  try{
-    return decodeURIComponent(x);
-  }catch{
-    return recodeComponent(x);
-  }
-};
-const encoder = new TextEncoder();
-const encode = encoder.encode.bind(encoder);
-const decoder = new TextDecoder();
-const decode = decoder.decode.bind(decoder);
-const encodeComponent = x =>{
-  try{
-    return encodeURIComponent(x);
-  }catch{
-    try{
-      return encodeURIComponent(String(x).toWellFormed());
-    }catch{
-      return encodeURIComponent(decode(encode(String(x))));
-    }
-  }
-};
+    const tecodeComponent = x => {
+      try {
+        return decodeURIComponent(x);
+      } catch {
+        return String(x);
+      }
+    };
+    const recodeComponent = x => String(x).replace(/%[A-F0-9]{2}/g, tecodeComponent);
+    const decodeComponent = x => {
+      try {
+        return decodeURIComponent(x);
+      } catch {
+        return recodeComponent(x);
+      }
+    };
+    const encoder = new TextEncoder();
+    const encode = encoder.encode.bind(encoder);
+    const decoder = new TextDecoder();
+    const decode = decoder.decode.bind(decoder);
+    const encodeComponent = x => {
+      try {
+        return encodeURIComponent(x);
+      } catch {
+        try {
+          return encodeURIComponent(String(x).toWellFormed());
+        } catch {
+          return encodeURIComponent(decode(encode(String(x))));
+        }
+      }
+    };
     let retryCount = 0;
     (async () => {
       while (true) {
@@ -57,7 +58,7 @@ const encodeComponent = x =>{
               retry.click();
               const backoff = Array(retryCount);
               retryCount++;
-              for(_ of backoff){
+              for (_ of backoff) {
                 await sleep(1);
                 await nextIdle();
               }
@@ -71,12 +72,12 @@ const encodeComponent = x =>{
           const texts = [...docSelectAll('[text]')];
           for (const text of texts) {
             let content = String(text.textContent || '').trim();
-            if(/GPT.4o\s*mini/i.test(content)){
+            if (/GPT.4o\s*mini/i.test(content)) {
               content = 'Cached Response';
               text.textContent = content;
             }
             const decontent = decodeComponent(content).trim();
-            if(content != decontent){
+            if (content != decontent) {
               text.textContent = decontent;
             }
             if (text.getAttribute('text') != content) {
@@ -125,29 +126,29 @@ const encodeComponent = x =>{
         });
       }
     };
-    const getText = ()=>{
-      return String([...docSelectAll('[data-activeresponse="true"]:has(p)')].pop().innerText||'').trim().replace(/^Search/,'').trim().replace(/GPT-4o mini/,'').trim();
+    const getText = () => {
+      return String([...docSelectAll('[data-activeresponse="true"]:has(p)')].pop().innerText || '').trim().replace(/^Search/, '').trim().replace(/GPT-4o mini/, '').trim();
     };
-    const deparse = x =>{
-      try{
+    const deparse = x => {
+      try {
         return JSON.parse(x);
-      }catch{
+      } catch {
         return JSON.parse(decodeComponent(x));
       }
     };
-    const parse = x =>{
-      try{
+    const parse = x => {
+      try {
         return deparse(x);
-      }catch{}
+      } catch {}
     };
     const upsert = async (cacheURL, prompt, response) => {
       let lines;
-      try{
+      try {
         response = await response.clone().text();
         lines = response.split('\n');
-        lines = lines.map(x=>x.replace('data:','').trim()).filter(x=>x).map(parse).map(x=>x.message).join('');
+        lines = lines.map(x => x.replace('data:', '').trim()).filter(x => x).map(parse).map(x => x.message).join('');
         console.log(lines);
-      }catch(e){
+      } catch (e) {
         console.warn(e);
         console.log(getText());
         await nextIdle();
@@ -161,8 +162,8 @@ const encodeComponent = x =>{
           'anti-bot': 'yes',
         },
         body: JSON.stringify({
-          prompt:encodeComponent(prompt),
-          response:encodeComponent(lines)
+          prompt: encodeComponent(prompt),
+          response: encodeComponent(lines)
         })
       });
     };
@@ -242,8 +243,8 @@ data: [DONE]
             });
             console.log(res);
           }
-          if(canCache && prompt){
-            upsert(cacheURL,prompt,res);
+          if (canCache && prompt) {
+            upsert(cacheURL, prompt, res);
           }
           return res;
         } catch (e) {
