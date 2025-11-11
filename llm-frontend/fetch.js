@@ -52,6 +52,7 @@
           }
         } catch (e) {
           console.warn(e);
+          await sleep(1000);
         }
       }
     })();
