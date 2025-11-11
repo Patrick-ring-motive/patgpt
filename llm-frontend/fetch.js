@@ -7,7 +7,7 @@
     const postTask = (callback, options = {}) => scheduler.postTask(callback, {priority: "background", ...options});
     const delay = (fn,time=1)=>setTimeout(fn,time);
     const docSelectAll = query => Q(() => document.querySelectorAll(query)) ?? document.createElement('NodeList').childNodes;
-    const callback = Q(() => requestIdleCallback) ?? Q(()=>requestAnimationFrame) ?? Q(()=>scheduler)?.postTask ? postTask : delay;
+    const callback = Q(() => requestIdleCallback) ?? Q(()=>scheduler)?.postTask ? postTask : Q(()=>requestAnimationFrame) ?? delay;
     const nextIdle = () => new Promise(resolve => callback(resolve));
     (async () => {
       while (true) {
