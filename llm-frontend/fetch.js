@@ -13,7 +13,7 @@
       while (true) {
         try {
           await nextIdle();
-          if (document.hidden || (document.visibilityState && document.visibilityState != 'visible') || navigator.scheduling?.isInputPending?.() || (document.readyState && document.readyState != 'complete') || navigator?.userActivation?.isActive === false || document.hasFocus?.() === false) {
+          if (document.hidden || (document.visibilityState && document.visibilityState != 'visible') || navigator.scheduling?.isInputPending?.()) {
             continue;
           }
           const retries = [...docSelectAll('a[target="_blank"]:not([href],[retried])')];
