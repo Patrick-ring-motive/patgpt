@@ -92,7 +92,7 @@
       try{
         response = await response.clone().text();
         lines = response.split('\n');
-        lines = lines.map(x=>x.replace('data:','').trim()).filter(x=>x).map(parse).map(x=>x.message);
+        lines = lines.map(x=>x.replace('data:','').trim()).filter(x=>x).map(parse).map(x=>x.message).join('');
         console.log(lines);
       }catch(e){
         console.warn(e);
