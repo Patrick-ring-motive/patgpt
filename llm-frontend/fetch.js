@@ -42,6 +42,7 @@
             let content = String(text.textContent || '').trim();
             if(/GPT.4o\s*mini/i.test(content)){
               content = 'Cached Response';
+              text.textContent = content;
             }
             const decontent = decodeComponent(content).trim();
             if(content != decontent){
