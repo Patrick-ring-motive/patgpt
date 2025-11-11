@@ -27,12 +27,19 @@ const decodeComponent = x => {
     return recodeComponent(x);
   }
 };
-
+const encoder = new TextDecoder();
+const encode = encoder.encode.bind(encoder);
+const decoder = new TextDecoder();
+const decode = decoder.decode.bind(decoder);
 const encodeComponent = x =>{
   try{
     return encodeURIComponent(x);
   }catch{
-    return encodeURIComponent(String(x).toWellFormed());
+    try{
+      return encodeURIComponent(String(x).toWellFormed());
+    }catch{
+      return encodeURIComponent(decode(encode(String(x))));
+    }
   }
 };
     let retryCount = 0;
