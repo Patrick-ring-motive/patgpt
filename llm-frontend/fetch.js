@@ -121,8 +121,8 @@
           'anti-bot': 'yes',
         },
         body: JSON.stringify({
-          prompt,
-          response:lines
+          prompt:encodeURIComponent(prompt),
+          response:encodeURIComponent(lines)
         })
       });
     };
@@ -166,13 +166,13 @@
         return new Response('{}');
       }
       if (url.includes('duckchat/v1/chat')) {
-        const body = JSON.parse(args[1].body);
+        const body = deparse(args[1].body);
         body.model = 'gpt-5-mini';
         body.metadata.toolChoice.WebSearch = true;
         args[1].body = JSON.stringify(body);
         try {
           args[1].headers ??= new Headers();
-          const messages = body.messages.filter(x => x.role === 'user').map(y => y.content);
+          const messages = body.messages.filter(x => x.role == 'user').map(y => y.content);
           if (messages.length > 1) {
             canCache = true;
             prompt = messages.slice(-2).join(' ').trim();
@@ -190,7 +190,7 @@
           }
           if (res.status != 200) {
             canCache = false;
-            res = new Response(`data: {"id":"1","action":"success","created":` + new Date().getTime() + ',"model":"gpt-5-mini-2025-08-07","role":"assistant","message":"' + res.statusText + `"}
+            res = new Response(`data: {"id":"1","action":"success","created":` + new Date().getTime() + ',"model":"gpt-5-mini-2025-08-07","role":"assistant","message":"' + encodeURIComponent(String(res.statusText)) + `"}
 
 data: [DONE]
 
@@ -208,7 +208,7 @@ data: [DONE]
           return res;
         } catch (e) {
           canCache = false;
-          return new Response(`data: {"id":"1","action":"success","created":` + new Date().getTime() + ',"model":"gpt-5-mini-2025-08-07","role":"assistant","message":"' + String(e?.message ?? e) + `"}
+          return new Response(`data: {"id":"1","action":"success","created":` + new Date().getTime() + ',"model":"gpt-5-mini-2025-08-07","role":"assistant","message":"' + encodeURIComponent(String(e?.message ?? e)) + `"}
 
 data: [DONE]
 
