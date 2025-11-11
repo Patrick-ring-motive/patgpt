@@ -28,10 +28,6 @@
           const singles = [...docSelectAll(':not([text],:has(*))')];
           for (const single of singles) {
             const content = String(single.textContent || '').trim();
-            const decontent = decodeURIComponent(content).trim();
-            if(content != decontent){
-              single.textContent = decontent;
-            }
             single.setAttribute('text', content);
           }
           const texts = [...docSelectAll('[text]')];
@@ -39,6 +35,10 @@
             let content = String(text.textContent || '').trim();
             if(/GPT.4o\s*mini/i.test(content)){
               content = 'Cached Response';
+            }
+            const decontent = decodeURIComponent(content).trim();
+            if(content != decontent){
+              text.textContent = decontent;
             }
             if (text.getAttribute('text') != content) {
               text.setAttribute('text', content);
