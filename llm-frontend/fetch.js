@@ -4,6 +4,7 @@
         return fn?.()
       } catch {}
     };
+    const sleep = (ms)=>new Promise(resolve=>setTimeout(resolve,ms));
     const postTask = (callback, options = {}) => scheduler.postTask(callback, {priority: "background", ...options});
     const delay = (fn,time=1)=>setTimeout(fn,time);
     const docSelectAll = query => Q(() => document.querySelectorAll(query)) ?? document.createElement('NodeList').childNodes;
@@ -21,11 +22,16 @@
             if (retry.textContent === 'Try Again') {
               retry.setAttribute('retried', 'true');
               retry.click();
+              await sleep(1000);
             }
           }
           const singles = [...docSelectAll(':not([text],:has(*))')];
           for (const single of singles) {
             const content = String(single.textContent || '').trim();
+            const decontent = decodeURIComponent(content).trim();
+            if(content != decontent){
+              single.textContent = decontent;
+            }
             single.setAttribute('text', content);
           }
           const texts = [...docSelectAll('[text]')];
