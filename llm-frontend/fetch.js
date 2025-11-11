@@ -10,7 +10,7 @@
     const docSelectAll = query => Q(() => document.querySelectorAll(query)) ?? document.createElement('NodeList').childNodes;
     const callback = Q(() => requestIdleCallback) ?? Q(()=>scheduler)?.postTask ? postTask : Q(()=>requestAnimationFrame) ?? delay;
     const nextIdle = () => new Promise(resolve => callback(resolve));
-    const decodeComponent = x => Q(()=>decodeURIComponent(x) ?? x;
+    const decodeComponent = x => Q(()=>decodeURIComponent(x)) ?? x;
     let retryCount = 0;
     (async () => {
       while (true) {
