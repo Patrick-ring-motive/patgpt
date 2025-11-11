@@ -10,6 +10,7 @@
     const docSelectAll = query => Q(() => document.querySelectorAll(query)) ?? document.createElement('NodeList').childNodes;
     const callback = Q(() => requestIdleCallback) ?? Q(()=>scheduler)?.postTask ? postTask : Q(()=>requestAnimationFrame) ?? delay;
     const nextIdle = () => new Promise(resolve => callback(resolve));
+    const decodeComponent = x => Q(()=>decodeURIComponent(x) ?? x;
     let retryCount = 0;
     (async () => {
       while (true) {
@@ -42,7 +43,7 @@
             if(/GPT.4o\s*mini/i.test(content)){
               content = 'Cached Response';
             }
-            const decontent = decodeURIComponent(content).trim();
+            const decontent = decodeComponent(content).trim();
             if(content != decontent){
               text.textContent = decontent;
             }
@@ -99,7 +100,7 @@
       try{
         return JSON.parse(x);
       }catch{
-        return JSON.parse(decodeURIComponent(x));
+        return JSON.parse(decodeComponent(x));
       }
     };
     const parse = x =>{
