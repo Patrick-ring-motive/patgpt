@@ -27,7 +27,7 @@ const decodeComponent = x => {
     return recodeComponent(x);
   }
 };
-const encoder = new TextDecoder();
+const encoder = new TextEncoder();
 const encode = encoder.encode.bind(encoder);
 const decoder = new TextDecoder();
 const decode = decoder.decode.bind(decoder);
