@@ -10,6 +10,7 @@
     const docSelectAll = query => Q(() => document.querySelectorAll(query)) ?? document.createElement('NodeList').childNodes;
     const callback = Q(() => requestIdleCallback) ?? Q(()=>scheduler)?.postTask ? postTask : Q(()=>requestAnimationFrame) ?? delay;
     const nextIdle = () => new Promise(resolve => callback(resolve));
+    let retryCount = 0;
     (async () => {
       while (true) {
         try {
@@ -22,7 +23,12 @@
             if (retry.textContent === 'Try Again') {
               retry.setAttribute('retried', 'true');
               retry.click();
-              await sleep(1000);
+              const backoff = Array(retryCount);
+              retryCount++;
+              for(_ of backoff){
+                await sleep(1);
+                await nextIdle();
+              }
             }
           }
           const singles = [...docSelectAll(':not([text],:has(*))')];
