@@ -10,7 +10,31 @@
     const docSelectAll = query => Q(() => document.querySelectorAll(query)) ?? document.createElement('NodeList').childNodes;
     const callback = Q(() => requestIdleCallback) ?? Q(()=>scheduler)?.postTask ? postTask : Q(()=>requestAnimationFrame) ?? delay;
     const nextIdle = () => new Promise(resolve => callback(resolve));
-    const decodeComponent = x => Q(()=>decodeURIComponent(x)) ?? x;
+    const tecodeComponent = x =>{
+  try{
+    return decodeURIComponent(x);
+  }catch{
+    return String(x);
+  }
+};
+
+const recodeComponent = x => String(x).replace(/%[A-F0-9]{2}/g,tecodeComponent);
+
+const decodeComponent = x => {
+  try{
+    return decodeURIComponent(x);
+  }catch{
+    return recodeComponent(x);
+  }
+};
+
+const encodeComponent = x =>{
+  try{
+    return encodeURIComponent(x);
+  }catch{
+    return encodeURIComponent(String(x).toWellFormed());
+  }
+};
     let retryCount = 0;
     (async () => {
       while (true) {
@@ -130,8 +154,8 @@
           'anti-bot': 'yes',
         },
         body: JSON.stringify({
-          prompt:encodeURIComponent(prompt),
-          response:encodeURIComponent(lines)
+          prompt:encodeComponent(prompt),
+          response:encodeComponent(lines)
         })
       });
     };
@@ -186,7 +210,7 @@
             canCache = true;
             prompt = messages.slice(-2).join(' ').trim();
           }
-          args[1].headers['last-message'] = encodeURIComponent(prompt ?? messages.pop());
+          args[1].headers['last-message'] = encodeComponent(prompt ?? messages.pop());
           args[1].headers?.set?.('last-message', args[1].headers['last-message']);
         } catch (e) {
           console.warn(e);
