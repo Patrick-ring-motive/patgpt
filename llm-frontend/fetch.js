@@ -245,7 +245,7 @@ data: [DONE]
             console.log(res);
           }
           if (canCache && prompt) {
-            upsert(cacheURL, prompt, res);
+            //upsert(cacheURL, prompt, res);
           }
           return res;
         } catch (e) {
