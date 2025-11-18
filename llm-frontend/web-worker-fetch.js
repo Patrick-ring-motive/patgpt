@@ -34,7 +34,7 @@
     const fetchWorkerMap = new Map();
     const fetchWorker = new Worker(document.currentScript?.src ?? new Error().stack.match(/(https?:\/\/[^)\s]+)/)[1].replace(/:\d+(:\d+)?$/, ''));
     fetchWorker.onmessage = (event) => {
-      fetchWorkerMap.get(event.data.id)?.resolve(event.data.payload);
+      fetchWorkerMap.get(event.data.id)?.resolve?.(event.data.payload);
     };
     globalThis.workerFetch = async (requestInit) => {
       try {
