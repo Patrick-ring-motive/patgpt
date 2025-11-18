@@ -245,7 +245,7 @@ data: [DONE]
             console.log(res);
           }
           if (canCache && prompt) {
-            //upsert(cacheURL, prompt, res.clone());
+            upsert(cacheURL, prompt, res.clone());
           }
           return res;
         } catch (e) {
