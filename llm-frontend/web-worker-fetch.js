@@ -34,13 +34,33 @@
     const fetchWorkerMap = new Map();
     const fetchWorker = new Worker(document.currentScript?.src ?? new Error().stack.match(/(https?:\/\/[^)\s]+)/)[1].replace(/:\d+(:\d+)?$/, ''));
     fetchWorker.onmessage = (event) => {
-      fetchWorkerMap.get(event.data.id)?.resolve?.(event.data.payload);
+      const resolve = fetchWorkerMap.get(event.data.id)?.resolve;
+      (resolve ?? {}).resolved = true;
+      resolve?.(event.data.payload);
     };
     globalThis.workerFetch = async (requestInit) => {
       try {
         requestInit.id = crypto.randomUUID();
         let resolve;
-        const promise = new Promise((res) => resolve = res);
+        const promise = new Promise(async(res) => {
+          try{
+            resolve = res;
+            for(const _ of Array(10)){
+              try{
+              await nextIdle();
+            }
+          }catch(e){
+            console.warn(e,requestInit);
+            if(!resolve.resolved){
+              resolve.resolved = true;
+              reslove(String(e?.message ?? e));
+            }
+          }
+          if(!resolve.resolved){
+            resolve.resolved = true;
+            reslove(String(e?.message ?? e));
+          }
+        });
         fetchWorkerMap.set(requestInit.id, {
           promise,
           resolve
