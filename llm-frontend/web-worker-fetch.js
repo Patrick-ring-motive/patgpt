@@ -20,7 +20,7 @@
     let text = '';
     const stream = res?.body;
     try{
-      for await (const chunk of readableStream) {
+      for await (const chunk of stream) {
         text += decode(chunk);
       }
     }catch(e){
