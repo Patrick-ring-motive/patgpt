@@ -62,7 +62,6 @@
           try{
             resolve = res;
             for(const _ of Array(10)){
-              try{
               await nextIdle();
             }
           }catch(e){
