@@ -19,7 +19,7 @@
       const id = event.data.id;
       try {
         payload = await fetch(event.data.url, event.data);
-        payload = await res.text();
+        payload = await payload.text();
       } catch (e) {
         payload = e.message ?? e
       }
