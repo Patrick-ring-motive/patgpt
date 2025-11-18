@@ -39,8 +39,8 @@
     globalThis.workerFetch => async (requestInit) => {
       try {
         requestInit.id = crypto.randomUUID();
-        const resolve = x => x;
-        const promise = new Promise(() => resolve);
+        let resolve;
+        const promise = new Promise((res) => resolve = res);
         fetchWorkerMap.set(requestInit.id, {
           promise,
           resolve
