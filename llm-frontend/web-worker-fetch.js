@@ -12,6 +12,22 @@
   const delay = (fn, time = 1) => setTimeout(fn, time);
   const callback = Q(() => requestIdleCallback) ?? Q(() => scheduler)?.postTask ? postTask : Q(() => requestAnimationFrame) ?? delay;
   const nextIdle = () => new Promise(resolve => callback(resolve));
+  const encoder = new TextEncoder();
+  const encode = encoder.encode.bind(encoder);
+  const decoder = new TextDecoder();
+  const decode = decoder.decode.bind(decoder);
+  const responseText = async(res) =>{
+    let text = '';
+    const stream = res?.body;
+    try{
+      for await (const chunk of readableStream) {
+        text += decode(chunk);
+      }
+    }catch(e){
+      text += String(e?.message ?? e);
+    }
+    return text;
+  };
   (() => {
     if (Q(() => self.Window)) return;
     self.onmessage = async (event) => {
