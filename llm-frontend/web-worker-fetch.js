@@ -14,7 +14,7 @@
     const nextIdle = () => new Promise(resolve => callback(resolve));
   (()=>{
     if(Q(()=>self.Window))return;
-    self.onmessage = (event) => {
+    self.onmessage = async (event) => {
         let payload;
         const id = event.data.id;
         try{
