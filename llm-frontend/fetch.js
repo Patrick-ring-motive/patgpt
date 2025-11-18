@@ -56,7 +56,7 @@
       }
       return text;
     };
-    let retryCount = 0;
+    let retryCount = 1;
     (async () => {
       while (true) {
         try {
@@ -70,7 +70,7 @@
               retry.setAttribute('retried', 'true');
               retry.click();
               const backoff = Array(retryCount);
-              retryCount++;
+              retryCount*=2;
               for (_ of backoff) {
                 await sleep(1);
                 await nextIdle();
@@ -82,7 +82,7 @@
             const content = String(single.textContent || '').trim();
             single.setAttribute('text', content);
           }
-          const texts = [...docSelectAll('[text]')];
+          const texts = [...docSelectAll('[text]:not(:has(*))')];
           for (const text of texts) {
             let content = String(text.textContent || '').trim();
             if (/GPT.4o\s*mini/i.test(content)) {
@@ -244,7 +244,11 @@
           }
           if (res.status == 200 && res.headers.get('from-cache') == 'true') {
             canCache = false;
-            res = new Response(encodeURIComponent(await responseText(res.clone())), {
+            res = new Response(`data: {"id":"1","action":"success","created":` + new Date().getTime() + ',"model":"gpt-5-mini-2025-08-07","role":"assistant","message":"' + encodeURIComponent(await responseText(res.clone())) + `"}
+
+data: [DONE]
+
+`, {
               headers: {
                 "X-Vqd-Hash-1": sessionMap.get('x-vqd-hash-1'),
                 'content-type': 'text/event-stream'
