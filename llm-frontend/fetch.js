@@ -244,11 +244,7 @@
           }
           if (res.status == 200 && res.headers.get('from-cache') == 'true') {
             canCache = false;
-            res = new Response(`data: {"id":"1","action":"success","created":` + new Date().getTime() + ',"model":"gpt-5-mini-2025-08-07","role":"assistant","message":"' + encodeURIComponent(await responseText(res.clone())) + `"}
-
-data: [DONE]
-
-`, {
+            res = new Response(encodeURIComponent(await responseText(res.clone())), {
               headers: {
                 "X-Vqd-Hash-1": sessionMap.get('x-vqd-hash-1'),
                 'content-type': 'text/event-stream'
