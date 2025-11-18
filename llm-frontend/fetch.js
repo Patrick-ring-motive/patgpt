@@ -97,6 +97,18 @@
               text.setAttribute('text', content);
             }
           }
+          const textNodes = [...docSelectAll('[text]')].map(x=>[...x.childNodes]).flat().filter(x=>x.nodeName === '#text');
+          for (const text of textNodes) {
+            let content = String(text.textContent || '').trim();
+            if (/GPT.4o\s*mini/i.test(content)) {
+              content = 'Cached Response';
+              text.textContent = content;
+            }
+            const decontent = decodeComponent(content).trim();
+            if (content != decontent) {
+              text.textContent = decontent;
+            }
+          }
         } catch (e) {
           console.warn(e);
           await sleep(1000);
