@@ -242,6 +242,20 @@
           if (res.headers.has('x-vqd-hash-1') && res.headers.get('x-vqd-hash-1') != 'null' && res.headers.get('x-vqd-hash-1') != 'undefined') {
             sessionMap.set('x-vqd-hash-1', res.headers.get('x-vqd-hash-1'));
           }
+          if (res.status == 200 && res.headers.get('from-cache') == 'true') {
+            canCache = false;
+            res = new Response(`data: {"id":"1","action":"success","created":` + new Date().getTime() + ',"model":"gpt-5-mini-2025-08-07","role":"assistant","message":"' + encodeURIComponent(await responseText(res.clone())) + `"}
+
+data: [DONE]
+
+`, {
+              headers: {
+                "X-Vqd-Hash-1": sessionMap.get('x-vqd-hash-1'),
+                'content-type': 'text/event-stream'
+              }
+            });
+            console.log(res);
+          }
           if (res.status != 200) {
             canCache = false;
             res = new Response(`data: {"id":"1","action":"success","created":` + new Date().getTime() + ',"model":"gpt-5-mini-2025-08-07","role":"assistant","message":"' + encodeURIComponent(String(res.statusText)) + `"}
