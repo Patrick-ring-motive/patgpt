@@ -44,6 +44,18 @@
         }
       }
     };
+    const responseText = async(res) =>{
+      let text = '';
+      const stream = res?.body;
+      try{
+        for await (const chunk of readableStream) {
+          text += decode(chunk);
+        }
+      }catch(e){
+        text += String(e?.message ?? e);
+      }
+      return text;
+    };
     let retryCount = 0;
     (async () => {
       while (true) {
@@ -145,7 +157,7 @@
     const upsert = async (cacheURL, prompt, response) => {
       let lines;
       try {
-        response = await response.clone().text();
+        response = await responseText(response.clone());
         lines = response.split('\n');
         lines = lines.map(x => x.replace('data:', '').trim()).filter(x => x).map(parse).map(x => x.message).join('');
         console.log(lines);
