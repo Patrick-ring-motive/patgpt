@@ -36,7 +36,7 @@
     fetchWorker.onmessage = (event) => {
       fetchWorkerMap.get(event.data.id)?.resolve(event.data.payload);
     };
-    globalThis.workerFetch => async (requestInit) => {
+    globalThis.workerFetch = async (requestInit) => {
       try {
         requestInit.id = crypto.randomUUID();
         let resolve;
