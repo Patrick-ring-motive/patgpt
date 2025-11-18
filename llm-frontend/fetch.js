@@ -109,15 +109,15 @@
               text.textContent = decontent;
               content = decontent;
             }
-            if(content.includes('"message":"'){
+            if(content.includes('"message":"')){
               content = content.split('"message":"').pop().trim();
               text.textContent = content;
             }
-            if(content.includes('data: [DONE]'){
+            if(content.includes('data: [DONE]')){
               content = content.split('data: [DONE]').shift().trim();
               text.textContent = content;
             }
-            if(content.endsWith('"}'){
+            if(content.endsWith('"}')){
               content = content.slice(0,-2);
               text.textContent = content;
             }
