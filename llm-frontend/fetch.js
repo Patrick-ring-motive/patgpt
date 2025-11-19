@@ -121,6 +121,10 @@
               content = content.slice(0,-2);
               text.textContent = content;
             }
+            if(content.includes('—')){
+              content = content.replaceAll('—',"");
+              text.textContent = content;
+            }
           }
         } catch (e) {
           console.warn(e);
