@@ -1,3 +1,29 @@
+const setCacheHeaders = (headers=new Headers(), seconds = 31535000 ) => {
+  for (const header of ["CDN-Cache-Control", "Cache-Control", "Cloudflare-CDN-Cache-Control", "Surrogate-Control", "Vercel-CDN-Cache-Control"]) {
+      headers.set(header, `public, max-age=${seconds}, s-max-age=${seconds}, stale-if-error=31535000, stale-while-revalidate=31535000`);
+  }
+  for (const header of ['vary', 'etag', 'nel', 'pragma', 'cf-ray']) {
+      headers.delete(header);
+  }
+  headers.set('nel', '{}');
+  return headers;
+};
+
+const decodeComponent = x => {
+  try{
+    return decodeURIComponent(x);
+  }catch{
+    return x;
+  }
+};
+
+const deparse = x =>{
+  try{
+    return JSON.parse(x);
+  }catch{
+    return JSON.parse(decodeComponent(x));
+  }
+};
 
 class TrieNode { constructor(){ this.children = {}; this.isEnd = false; } }
 class Trie {
@@ -105,7 +131,7 @@ class Stash{
         this.cache = await this.cache;
       }
       console.log('Stash set',key,value);
-      return await this.cache.put(Stash.urlKey(key),new Response(value));
+      return await this.cache.put(Stash.urlKey(key),new Response(value,{headers:setCacheHeaders()}));
     }catch(e){
       console.warn(e,key,value);
     }
@@ -122,49 +148,153 @@ class Stash{
   }
 }
 
-let store;
 
+// Pure functions instead of prototype methods
+const rm = (str, re) => String(str).replace(re, '');
+const splitWords = (str) => String(str).split(/\s+/);
+
+const lcs = function lcs(seq1, seq2) {
+    "use strict";
+    let arr1 = [...seq1 ?? []];
+    let arr2 = [...seq2 ?? []];
+    if (arr2.length > arr1.length) {
+        [arr1, arr2] = [arr2, arr1];
+    }
+    const dp = Array(arr1.length + 1).fill(0).map(() => Array(arr2.length + 1).fill(0));
+    const dp_length = dp.length;
+    for (let i = 1; i !== dp_length; i++) {
+        const dpi_length = dp[i].length;
+        for (let x = 1; x !== dpi_length; x++) {
+            if (arr1[i - 1] === arr2[x - 1]) {
+                dp[i][x] = dp[i - 1][x - 1] + 1
+            } else {
+                dp[i][x] = Math.max(dp[i][x - 1], dp[i - 1][x])
+            }
+        }
+    }
+    return dp[arr1.length][arr2.length]
+};
+
+const wordMatch = function wordMatch(str1, str2) {
+    return lcs(str1, str2) >= Math.floor(0.8 * Math.max(str1?.length ?? 0, str2?.length ?? 0));
+}
+
+const lcws = function lcws(seq1, seq2) {
+    "use strict";
+    let arr1 = splitWords(rm(seq1, /[^a-zA-Z ]/g).toLowerCase());
+    let arr2 = splitWords(rm(seq2, /[^a-zA-Z ]/g).toLowerCase());
+    if (arr2.length > arr1.length) {
+        [arr1, arr2] = [arr2, arr1];
+    }
+    const dp = Array(arr1.length + 1).fill(0).map(() => Array(arr2.length + 1).fill(0));
+    const dp_length = dp.length;
+    for (let i = 1; i !== dp_length; i++) {
+        const dpi_length = dp[i].length;
+        for (let x = 1; x !== dpi_length; x++) {
+            if (wordMatch(arr1[i - 1], arr2[x - 1])) {
+                dp[i][x] = dp[i - 1][x - 1] + 1
+            } else {
+                dp[i][x] = Math.max(dp[i][x - 1], dp[i - 1][x])
+            }
+        }
+    }
+    return dp[arr1.length][arr2.length]
+};
+
+const phraseMatch = function phraseMatch(str1, str2) {
+    str1=decodeComponent(decodeComponent(String(str1)));
+    str2=decodeComponent(decodeComponent(String(str2)));
+    const len = Math.floor(0.8 * Math.max(splitWords(str1).length, splitWords(str2).length));
+    const lcwsLen = lcws(str1,str2);
+    console.log({
+        len,
+        lcwsLen
+    });
+    return lcwsLen >= len;
+};
+
+const allowAll = (headers={})=>{
+  for(const allow of ['Origin','Methods','Headers']){
+    headers[`Access-Control-Allow-${allow}`] = '*';
+  }
+  return headers;
+};
+
+const getPrompt = (text)=>{
+  try{
+    const {prompt} = deparse(text);
+    return prompt;
+  }catch(e){
+    console.warn(e);
+    return '';
+  }
+};
+
+let store;
+async function onRequest(request, env) {
+  if(request.headers.get('anti-bot')!=='yes'){
+    return new Response("hello",{headers:allowAll()});
+  }
+  if(!store) store = new Stash();
+  if(store instanceof Promise)store = await store;
+  if(request.url.includes('upsert')){
+    const text = await request.text();
+    let {prompt} = deparse(text);
+    prompt = decodeComponent(decodeComponent(prompt));
+    if(!/[a-z]/i.test(prompt))return new Response(null,{status:400,headers:allowAll()});
+    const key = await hash(prompt);
+    const vec = generator.generateVector(prompt);
+    const normalized = normalizeL2(vec);
+    await env.PATGPT_VECTOR_CACHE.upsert([{ id:key, values: normalized}]);
+    await store.set(key,text);
+    return new Response(text,{
+      status:200,
+      headers:allowAll()
+    });
+  }
+  if(/query|match/.test(request.url)){
+    const reqText = await request.text();
+    let {prompt} = deparse(reqText);
+    prompt = decodeComponent(decodeComponent(prompt));
+    if(!/[a-z]/i.test(prompt))return new Response(null,{status:400,headers:allowAll()});
+    const vec = generator.generateVector(prompt);
+    const normalized = normalizeL2(vec);
+    const matches = await env.PATGPT_VECTOR_CACHE.query(normalized, { topK:1, returnValues:true,returnMetadata: 'all' });
+    const id = matches?.matches?.[0]?.id;
+    if(id){
+      console.log(id);
+      let text = decodeComponent(await store.get(id));
+      console.log(text);
+      const prompts = text.split('{"prompt":"');
+      prompts.shift();
+      const payload = prompts.join(' ').trim();
+      const responses = payload.split(',"response":"');
+      const textPrompt = responses[0] || '';
+      const textResponse = (responses[1]||'').slice(0,-2);
+      text = JSON.stringify({prompt:textPrompt,response:textResponse});
+      const res = new Response(text, { 
+        headers: allowAll({ 
+          'Content-Type': 'application/json'
+        })
+      });
+      if(!request.url.includes('match')){
+        return res;
+      }
+      const cachePrompt = getPrompt(text);
+      if(cachePrompt && phraseMatch(cachePrompt,prompt)){
+        return res;
+      }
+    }
+    return new Response(null,{status:404,headers:allowAll()});
+  }
+
+}
 export default {
   async fetch(request, env) {
-    if(request.headers.get('anti-bot')!=='yes'){
-      return new Response("hello");
+    try{
+      return await onRequest(...arguments);
+    }catch(e){
+      return new Response(String(e?.message ??e),{headers:allowAll()});
     }
-    if(!store) store = new Stash();
-    if(store instanceof Promise)store = await store;
-    if(request.url.includes('upsert')){
-      const text = await request.text();
-      const {prompt} = JSON.parse(text);
-      if(!/[a-z]/i.test(prompt))return new Response(null,{status:400});
-      const key = await hash(prompt);
-      const vec = generator.generateVector(prompt);
-      const normalized = normalizeL2(vec);
-      await env.PATGPT_VECTOR_CACHE.upsert([{ id:key, values: normalized}]);
-      await store.set(key,text);
-      return new Response(null,{
-        status:204,
-        headers:{
-          'Access-Control-Allow-Origin':'*'
-        }
-      });
-    }
-    if(request.url.includes('query')){
-      const {prompt} = await request.json();
-      if(!/[a-z]/i.test(prompt))return new Response(null,{status:400});
-      const vec = generator.generateVector(prompt);
-      const normalized = normalizeL2(vec);
-      const matches = await env.PATGPT_VECTOR_CACHE.query(normalized, { topK:1, returnValues:true,returnMetadata: 'all' });
-      const id = matches?.matches?.[0]?.id;
-      if(id){
-        console.log(id);
-        return new Response(await store.get(id), { 
-          headers: { 
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin':'*'
-          }
-        });
-      }
-      return new Response(null,{status:404});
-    }
-
   }
 };
