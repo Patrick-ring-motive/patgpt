@@ -323,4 +323,8 @@ data: [DONE]
     navigator.sendBeacon = extend(function sendBeacon(...args) {
       return true;
     }, _sendBeacon);
+
+    const xstyles = document.createElement('style');
+      xstyles.innerHTML = `[text="Chat Protection"],[text="About"],a[href="https://llm.patrickring.net/app"]{display:none;visibility:hidden;}`;
+    document.firstElementChild.appendChild(xstyles);
   })();
