@@ -67,7 +67,7 @@ class SparseLexicalSearch {
     const len = vec.length;
 
     // Single loop is faster than 4 separate loops
-    for (let i = 0; i < len; i++) {
+    for (let i = 0; i !== len; ++i) {
       if (vec[i] === 0) continue; // Skip zeros immediately
 
       if (i < this.WORD_DIM) {
@@ -90,7 +90,8 @@ class SparseLexicalSearch {
 
     // 1. Calculate Query Norm once
     let queryNorm = 0;
-    for (let i = 0; i < queryVec.length; i++) {
+    const queryVecLength = queryVec.length;
+    for (let i = 0; i !== queryVecLength; ++i) {
       queryNorm += queryVec[i] * queryVec[i];
     }
     queryNorm = Math.sqrt(queryNorm);
@@ -99,7 +100,8 @@ class SparseLexicalSearch {
     const candidates = new Map(); // id → rough score
 
     const boost = (map, indices, weight) => {
-      for (let i = 0; i < indices.length; i++) {
+      const indicesLength = indices.length;
+      for (let i = 0; i !== indicesLength; ++i) {
         const idx = indices[i];
         const matchSet = map.get(idx);
         if (matchSet) {
@@ -123,7 +125,8 @@ class SparseLexicalSearch {
     // 3. Pruning
     const topCandidates = Array.from(candidates.entries())
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 150)
+      .slice(0, 150);
+    const topCandidatesLength = topCandidates.length;
       .map(entry => entry[0]);
 
     // 4. Exact Re-ranking
