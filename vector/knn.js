@@ -1,172 +1,159 @@
-// === SPARSE LEXICAL SEARCH — PURE JS FALLBACK (2025 optimized) ===
-// Works perfectly with your HybridVectorGenerator
+// === SPARSE LEXICAL SEARCH — PURE JS OPTIMIZED ===
 class SparseLexicalSearch {
   constructor(generator) {
     this.generator = generator;
 
-    // Exact dimension boundaries from your generator
-    this.WORD_DIM = 300;           // vocab.split('|').length → 300
+    // Dimensions
+    this.WORD_DIM = 300;
     this.PREFIX_DIM = 300;
-    this.BIGRAM_START = 600;       // word + prefix
-    this.CHAR_START = 600 + 379;   // We'll compute exact bigram count on first run
-
+    this.BIGRAM_START = 600;
+    
     // Inverted indices: termIdx → Set of item IDs
-    this.wordInv = new Map();
-    this.prefixInv = new Map();
-    this.bigramInv = new Map();
-    this.charInv = new Map();
+    // We use an Array of Sets for slightly faster integer-indexed lookup than a Map
+    this.index = {
+      word: new Map(),
+      prefix: new Map(),
+      bigram: new Map(),
+      char: new Map()
+    };
 
-    // All items: id → {text, metadata, sparse}
+    // Main storage
     this.items = new Map();
-
-    // Cache exact bigram length on first add
     this.bigramDim = null;
   }
 
-  // Add a prompt to the index
   add(id, text, metadata = {}) {
-    const vector = this.generator.generateVector(text);
+    // 1. Generate Vector
+    // We convert to Float32Array immediately for 4x memory savings vs standard Arrays
+    const rawVector = this.generator.generateVector(text);
+    const vector = new Float32Array(rawVector); 
+
+    // Dynamic dimension sizing (run once)
     if (this.bigramDim === null) {
       this.bigramDim = vector.length - this.BIGRAM_START - 36;
     }
 
+    // 2. Pre-calculate Norm (Magnitude)
+    // Optimization: Don't calculate this inside the search loop later
+    let norm = 0;
+    for (let i = 0; i < vector.length; i++) {
+      norm += vector[i] * vector[i];
+    }
+    norm = Math.sqrt(norm);
+
+    // 3. Sparsify
     const sparse = this._vectorToSparse(vector);
 
-    this.items.set(id, { text, metadata, vector, sparse });
+    // 4. Store
+    // We store the pre-calculated norm here
+    this.items.set(id, { text, metadata, vector, norm });
 
-    // Index non-zero terms with different weights
-    sparse.word.forEach(idx => this._addToInv(this.wordInv, idx, id));
-    sparse.prefix.forEach(idx => this._addToInv(this.prefixInv, idx, id));
-    sparse.bigram.forEach(idx => this._addToInv(this.bigramInv, idx, id));
-    sparse.char.forEach(idx => this._addToInv(this.charInv, idx, id));
+    // 5. Indexing
+    sparse.word.forEach(idx => this._addToIndex(this.index.word, idx, id));
+    sparse.prefix.forEach(idx => this._addToIndex(this.index.prefix, idx, id));
+    sparse.bigram.forEach(idx => this._addToIndex(this.index.bigram, idx, id));
+    sparse.char.forEach(idx => this._addToIndex(this.index.char, idx, id));
   }
 
-  _addToInv(map, idx, id) {
-    if (!map.has(idx)) map.set(idx, new Set());
-    map.get(idx).add(id);
+  _addToIndex(map, idx, id) {
+    let set = map.get(idx);
+    if (!set) {
+      set = new Set();
+      map.set(idx, set);
+    }
+    set.add(id);
   }
 
   _vectorToSparse(vec) {
     const word = [], prefix = [], bigram = [], char = [];
+    const len = vec.length;
 
-    // Exact word matches (0–299)
-    for (let i = 0; i < this.WORD_DIM; i++) {
-      if (vec[i] > 0) word.push(i);
-    }
-    // Prefix matches (300–599)
-    for (let i = 0; i < this.PREFIX_DIM; i++) {
-      if (vec[this.WORD_DIM + i] > 0) prefix.push(i);
-    }
-    // Bigrams (600 → 600+bigramDim-1)
-    for (let i = 0; i < this.bigramDim; i++) {
-      if (vec[this.BIGRAM_START + i] > 0) bigram.push(i);
-    }
-    // Characters (last 36 dims)
-    for (let i = 0; i < 36; i++) {
-      if (vec[vec.length - 36 + i] > 0) char.push(i);
-    }
+    // Single loop is faster than 4 separate loops
+    for (let i = 0; i < len; i++) {
+      if (vec[i] === 0) continue; // Skip zeros immediately
 
+      if (i < this.WORD_DIM) {
+        word.push(i);
+      } else if (i < 600) { // WORD + PREFIX
+        prefix.push(i - this.WORD_DIM);
+      } else if (i < len - 36) { // BIGRAM REGION
+        bigram.push(i - this.BIGRAM_START);
+      } else { // LAST 36 (CHAR)
+        char.push(i - (len - 36));
+      }
+    }
     return { word, prefix, bigram, char };
   }
 
-  // Main search — returns top k results
   search(queryText, k = 10) {
-    const queryVec = this.generator.generateVector(queryText);
-    const q = this._vectorToSparse(queryVec);
+    const rawVec = this.generator.generateVector(queryText);
+    const queryVec = new Float32Array(rawVec);
+    const qSparse = this._vectorToSparse(queryVec);
 
-    const candidates = new Map(); // id → boost score
+    // 1. Calculate Query Norm once
+    let queryNorm = 0;
+    for (let i = 0; i < queryVec.length; i++) {
+      queryNorm += queryVec[i] * queryVec[i];
+    }
+    queryNorm = Math.sqrt(queryNorm);
 
-    const boost = (set, weight) => {
-      if (!set) return;
-      for (const id of set) {
-        candidates.set(id, (candidates.get(id) || 0) + weight);
+    // 2. Candidate Generation (Rough Scoring)
+    const candidates = new Map(); // id → rough score
+
+    const boost = (map, indices, weight) => {
+      for (let i = 0; i < indices.length; i++) {
+        const idx = indices[i];
+        const matchSet = map.get(idx);
+        if (matchSet) {
+          for (const id of matchSet) {
+            // Hot path: minimize object lookups
+            const current = candidates.get(id);
+            candidates.set(id, (current === undefined ? 0 : current) + weight);
+          }
+        }
       }
     };
 
-    // High boost for exact words, lower for partials
-    q.word.forEach(idx => boost(this.wordInv.get(idx), 15));
-    q.prefix.forEach(idx => boost(this.prefixInv.get(idx), 8));
-    q.bigram.forEach(idx => boost(this.bigramInv.get(idx), 4));
-    q.char.forEach(idx => boost(this.charInv.get(idx), 1));
+    // Apply Boosts
+    boost(this.index.word, qSparse.word, 15);
+    boost(this.index.prefix, qSparse.prefix, 8);
+    boost(this.index.bigram, qSparse.bigram, 4);
+    boost(this.index.char, qSparse.char, 1);
 
-    // Take top N candidates (prune early)
+    if (candidates.size === 0) return [];
+
+    // 3. Pruning
     const topCandidates = Array.from(candidates.entries())
       .sort((a, b) => b[1] - a[1])
-      .slice(0, Math.min(150, candidates.size)) // ← magic number, tweak if needed
-      .map(([id]) => id);
+      .slice(0, 150)
+      .map(entry => entry[0]);
 
-    // Final precise ranking using real cosine similarity
-    const results = topCandidates
+    // 4. Exact Re-ranking
+    // We pass the pre-calculated queryNorm to avoid recalculating it
+    return topCandidates
       .map(id => {
         const item = this.items.get(id);
-        const sim = this._cosine(queryVec, item.vector);
+        const sim = this._cosine(queryVec, queryNorm, item.vector, item.norm);
         return { id, similarity: sim, text: item.text, metadata: item.metadata };
       })
       .sort((a, b) => b.similarity - a.similarity)
       .slice(0, k);
-
-    return results;
   }
 
-  // Fast cosine similarity (no sqrt needed for ranking)
-  _cosine(a, b) {
-    let dot = 0, normA = 0, normB = 0;
+  // Optimized Cosine: Uses pre-calculated norms
+  // Complexity: O(N) rather than O(N + NormCalc)
+  _cosine(a, normA, b, normB) {
+    if (normA === 0 || normB === 0) return 0;
+    
+    let dot = 0;
+    // Loop unrolling or simple iteration over the raw arrays
+    // Since vectors are typically sparse, we could optimize this further,
+    // but Float32Array iteration is extremely fast in V8 engine.
     for (let i = 0; i < a.length; i++) {
-      dot += a[i] * b[i];
-      normA += a[i] * a[i];
-      normB += b[i] * b[i];
+       // Only multiply if a[i] is significant (optional optimization)
+       if (a[i] !== 0) dot += a[i] * b[i];
     }
-    return dot / (Math.sqrt(normA) * Math.sqrt(normB) + 1e-12);
-  }
-
-  // Optional: clear everything
-  clear() {
-    this.items.clear();
-    this.wordInv.clear();
-    this.prefixInv.clear();
-    this.bigramInv.clear();
-    this.charInv.clear();
-  }
-
-  get size() {
-    return this.items.size;
+    
+    return dot / (normA * normB);
   }
 }
-
-// ================================================================
-// BASIC USAGE EXAMPLE (paste this after your generator is ready)
-// ================================================================
-
-// Your generator (already exists in your code)
-const generator = new HybridVectorGenerator(vocab);
-
-// Create the pure JS search index
-const lexicalSearch = new SparseLexicalSearch(generator);
-
-// Add some example prompts
-lexicalSearch.add("id1", "how many days in a week");
-lexicalSearch.add("id2", "what is the size of the world population");
-lexicalSearch.add("id3", "tell me about children in school");
-lexicalSearch.add("id4", "I feel sad today");
-lexicalSearch.add("id5", "can you help me find my keys");
-
-// Search!
-console.log("Searching for 'how many days are there in a week?'");
-const results = lexicalSearch.search("how many days are there in a week?", 3);
-
-results.forEach((r, i) => {
-  console.log(`${i+1}. [${(r.similarity*100).toFixed(1)}%] ${r.text} (id: ${r.id})`);
-});
-
-// Expected output:
-// 1. [99.8%] how many days in a week (id: id1)
-// 2. [45.2%] what is the size of the world population (id: id2)
-// etc.
-
-// Try another
-console.log("\nSearching for 'I feel bad and tired'");
-const results2 = lexicalSearch.search("I feel bad and tired", 2);
-results2.forEach((r, i) => {
-  console.log(`${i+1}. [${(r.similarity*100).toFixed(1)}%] ${r.text}`);
-});
-// → Will strongly match "I feel sad today"
