@@ -1,4 +1,41 @@
-class TrieNode { constructor(){ this.children = {}; this.isEnd = false; } }
+const lcs = function lcs(seq1, seq2) {
+            "use strict";
+            let arr1 = [...(seq1 ?? [])];
+            let arr2 = [...(seq2 ?? [])];
+            if (arr2.length > arr1.length) {
+              [arr1, arr2] = [arr2, arr1];
+            }
+            const dp = Array(arr1.length + 1)
+              .fill(0)
+              .map(() => Array(arr2.length + 1).fill(0));
+            const dp_length = dp.length;
+            for (let i = 1; i !== dp_length; i++) {
+              const dpi_length = dp[i].length;
+              for (let x = 1; x !== dpi_length; x++) {
+                if (arr1[i - 1] === arr2[x - 1]) {
+                  dp[i][x] = dp[i - 1][x - 1] + 1;
+                } else {
+                  dp[i][x] = Math.max(dp[i][x - 1], dp[i - 1][x]);
+                }
+              }
+            }
+            return dp[arr1.length][arr2.length];
+          };
+
+          const weightedLCS = (seq1, seq2) => {
+            return (
+              (lcs(seq1, seq2) * Math.min(seq1.length, seq2.length)) /
+              Math.max(seq1.length, seq2.length)
+            );
+          };
+
+
+class TrieNode { 
+  constructor(){ 
+    this.children = {}; 
+    this.isEnd = false; 
+  } 
+}
 class Trie {
   constructor(){ this.root = new TrieNode(); }
   insert(word){ let node = this.root; for (const char of word){ if (!node.children[char]) node.children[char] = new TrieNode(); node = node.children[char]; } node.isEnd = true; }
