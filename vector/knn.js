@@ -74,10 +74,10 @@ class SparseLexicalSearch {
         word.push(i);
       } else if (i < 600) { // WORD + PREFIX
         prefix.push(i - this.WORD_DIM);
-      } else if (i < len - 36) { // BIGRAM REGION
+      } else if (i < vecLength - 36) { // BIGRAM REGION
         bigram.push(i - this.BIGRAM_START);
       } else { // LAST 36 (CHAR)
-        char.push(i - (len - 36));
+        char.push(i - (vecLength - 36));
       }
     }
     return { word, prefix, bigram, char };
