@@ -1,35 +1,67 @@
-// ----- LCS & weighted LCS (unchanged logic, but tidy) -----
-const lcs = function lcs(seq1, seq2) {
-    "use strict";
-    const arr1 = [...(seq1 ?? [])];
-    const arr2 = [...(seq2 ?? [])];
-    // ensure arr1 is the longer one (optional for memory)
-    if (arr2.length > arr1.length) {
-        [arr1, arr2] = [arr2, arr1];
-    }
-    const dp = Array(arr1.length + 1)
-        .fill(0)
-        .map(() => Array(arr2.length + 1).fill(0));
-    const dp_length = dp.length;
-    for (let i = 1; i !== dp_length; i++) {
-        const dpi_length = dp[i].length;
-        for (let x = 1; x !== dpi_length; x++) {
-            if (arr1[i - 1] === arr2[x - 1]) {
-                dp[i][x] = dp[i - 1][x - 1] + 1;
+/**
+ * Banded LCS for token arrays
+ * Complexity: O(n · band)
+ */
+function bandedLCS(tokensA, tokensB, similarityThreshold = 0.8) {
+    const n = tokensA.length;
+    const m = tokensB.length;
+
+    if (n === 0 || m === 0) return 0;
+
+    const maxLen = Math.max(n, m);
+
+    // Required overlap
+    const required = Math.ceil(similarityThreshold * maxLen);
+
+    // Band size: how far from main diagonal we allow
+    const band = Math.ceil((1 - similarityThreshold) * maxLen);
+
+    // dp_prev and dp_curr represent only the band
+    const width = 2 * band + 1;
+    let dp_prev = new Int16Array(width);
+    let dp_curr = new Int16Array(width);
+
+    // Translate DP index j to band index
+    const indexInBand = (i, j) => j - (i - band);
+
+    for (let i = 1; i <= n; i++) {
+        dp_curr.fill(0);
+
+        // Allowed j range
+        const jStart = Math.max(1, i - band);
+        const jEnd   = Math.min(m, i + band);
+
+        for (let j = jStart; j <= jEnd; j++) {
+            const bi  = indexInBand(i, j);
+            const biL = indexInBand(i, j - 1);
+            const biU = indexInBand(i - 1, j);
+            const biD = indexInBand(i - 1, j - 1);
+
+            if (tokensA[i - 1] === tokensB[j - 1]) {
+                dp_curr[bi] = (dp_prev[biD] || 0) + 1;
             } else {
-                dp[i][x] = Math.max(dp[i][x - 1], dp[i - 1][x]);
+                dp_curr[bi] = Math.max(
+                    dp_curr[biL] || 0,
+                    dp_prev[biU] || 0
+                );
             }
         }
+
+        // Rotate buffers
+        [dp_prev, dp_curr] = [dp_curr, dp_prev];
     }
-    return dp[arr1.length][arr2.length];
-};
+
+    // LCS is at dp_prev index for j = m
+    const finalIndex = indexInBand(n, m);
+    return dp_prev[finalIndex] || 0;
+}
 
 const weightedLCS = (seq1, seq2) => {
     // Accept strings or arrays
     const len1 = (seq1 && seq1.length) || 0;
     const len2 = (seq2 && seq2.length) || 0;
     if (len1 === 0 || len2 === 0) return 0;
-    return (lcs(seq1, seq2) * Math.min(len1, len2)) / Math.max(len1, len2);
+    return (bandedLCS(seq1, seq2) * Math.min(len1, len2)) / Math.max(len1, len2);
 };
 
 // ----- Trie (same) -----
