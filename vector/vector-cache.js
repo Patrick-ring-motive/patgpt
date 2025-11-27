@@ -202,6 +202,12 @@ const lcws = function lcws(seq1, seq2) {
     return dp[arr1.length][arr2.length]
 };
 
+const weightedLCWS = (str1,str2)=>{
+  str1 = String(str1);
+  str2 = String(str2);
+  return lcws(str1,str2) / (Math.abs(str1.length - str2.length) + 1);
+};
+
 const phraseMatch = function phraseMatch(str1, str2) {
     str1=decodeComponent(decodeComponent(String(str1)));
     str2=decodeComponent(decodeComponent(String(str2)));
