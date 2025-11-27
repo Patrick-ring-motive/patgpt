@@ -45,7 +45,14 @@ class HybridVectorGenerator {
     const chars = remainingText.split('');
     const totalChars = chars.length;
     const charVector = this.characters.map(ch => chars.filter(c=>c===ch).length / (totalChars||1));
-    return [...wordVector, ...prefixVector, ...bigramVector, ...charVector];
+    const vec = [...wordVector, ...prefixVector, ...bigramVector, ...charVector];
+    const scale = 255;
+    const vecLength = vec.length;
+    const qbytes = new Uint8Array(vecLength);
+    for (let i = 0; i !== vecLength; ++i){
+      qbytes[i] = ~~(vec[i] * scale);
+    }
+    return qbits;
   }
 }
 
