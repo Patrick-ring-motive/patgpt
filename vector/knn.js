@@ -27,19 +27,17 @@ class SparseLexicalSearch {
     // We convert to Float32Array immediately for 4x memory savings vs standard Arrays
     const rawVector = this.generator.generateVector(text);
     const vector = new Float32Array(rawVector); 
-
+    const vectorLength = vector.length;
     // Dynamic dimension sizing (run once)
-    if (this.bigramDim === null) {
-      this.bigramDim = vector.length - this.BIGRAM_START - 36;
-    }
+    this.bigramDim ??= vectorLength - this.BIGRAM_START - 36;
 
     // 2. Pre-calculate Norm (Magnitude)
     // Optimization: Don't calculate this inside the search loop later
     let norm = 0;
-    for (let i = 0; i < vector.length; i++) {
-      norm += vector[i] * vector[i];
+    for (let i = 0; i !== vectorLength; ++i) {
+      norm += vector[i] ** 2;
     }
-    norm = Math.sqrt(norm);
+    norm = norm ** 0.5;
 
     // 3. Sparsify
     const sparse = this._vectorToSparse(vector);
