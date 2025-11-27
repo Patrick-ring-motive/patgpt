@@ -83,9 +83,10 @@ const generator = new HybridVectorGenerator(vocab);
 
 // L2 normalize helper
 function normalizeL2(vec){
-  let sum=0; for (let v of vec) sum += v*v;
+  return vec;
+ /* let sum=0; for (let v of vec) sum += v*v;
   const norm = Math.sqrt(sum) || 1;
-  return vec.map(v => v / norm);
+  return vec.map(v => v / norm);*/
 }
 
 const encoder = new TextEncoder();
