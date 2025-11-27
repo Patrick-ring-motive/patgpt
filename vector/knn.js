@@ -127,17 +127,17 @@ class SparseLexicalSearch {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 150);
     const topCandidatesLength = topCandidates.length;
-      .map(entry => entry[0]);
-
+    for(let i = 0; i !== topCandidatesLength; ++i){
     // 4. Exact Re-ranking
     // We pass the pre-calculated queryNorm to avoid recalculating it
-    return topCandidates
-      .map(id => {
-        const item = this.items.get(id);
-        const sim = this._cosine(queryVec, queryNorm, item.vector, item.norm);
-        return { id, similarity: sim, text: item.text, metadata: item.metadata };
-      })
-      .sort((a, b) => b.similarity - a.similarity)
+      const id = topCandidates[i][0];
+      const item = this.items.get(id);
+      const sim = this._cosine(queryVec, queryNorm, item.vector, item.norm);
+      topCandidstes[i] = { id, similarity: sim, text: item.text, metadata: item.metadata };
+    }
+      
+
+     return topCandidate.sort((a, b) => b.similarity - a.similarity)
       .slice(0, k);
   }
 
