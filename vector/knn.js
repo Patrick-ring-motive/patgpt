@@ -64,10 +64,10 @@ class SparseLexicalSearch {
 
   _vectorToSparse(vec) {
     const word = [], prefix = [], bigram = [], char = [];
-    const len = vec.length;
+    const vecLength = vec.length;
 
     // Single loop is faster than 4 separate loops
-    for (let i = 0; i !== len; ++i) {
+    for (let i = 0; i !== vecLength; ++i) {
       if (vec[i] === 0) continue; // Skip zeros immediately
 
       if (i < this.WORD_DIM) {
@@ -94,7 +94,7 @@ class SparseLexicalSearch {
     for (let i = 0; i !== queryVecLength; ++i) {
       queryNorm += queryVec[i] * queryVec[i];
     }
-    queryNorm = Math.sqrt(queryNorm);
+    queryNorm = queryNorm ** 0.5;
 
     // 2. Candidate Generation (Rough Scoring)
     const candidates = new Map(); // id → rough score
@@ -150,7 +150,8 @@ class SparseLexicalSearch {
     // Loop unrolling or simple iteration over the raw arrays
     // Since vectors are typically sparse, we could optimize this further,
     // but Float32Array iteration is extremely fast in V8 engine.
-    for (let i = 0; i < a.length; i++) {
+    const aLength = a.length;
+    for (let i = 0; i !== aLength; ++i) {
        // Only multiply if a[i] is significant (optional optimization)
        if (a[i] !== 0) dot += a[i] * b[i];
     }
