@@ -1,9 +1,8 @@
 /**
-
-- Banded LCS for token arrays
-- Complexity: O(n · band)
-- FIXED: Proper bounds checking for band indices
-  */
+ * - Banded LCS for token arrays
+ * - Complexity: O(n · band)
+ * - FIXED: Proper bounds checking for band indices
+ */
 function bandedLCS(tokensA, tokensB, similarityThreshold = 0.8) {
     const n = tokensA.length;
     const m = tokensB.length;
@@ -34,7 +33,6 @@ function bandedLCS(tokensA, tokensB, similarityThreshold = 0.8) {
     for (let i = 1; i <= n; i++) {
         dp_curr.fill(0);
 
-
         // Allowed j range
         const jStart = Math.max(1, i - band);
         const jEnd = Math.min(m, i + band);
@@ -57,8 +55,6 @@ function bandedLCS(tokensA, tokensB, similarityThreshold = 0.8) {
 
         // Rotate buffers
         [dp_prev, dp_curr] = [dp_curr, dp_prev];
-
-
     }
 
     // LCS is at dp_prev index for j = m
@@ -74,7 +70,7 @@ const weightedLCS = (seq1, seq2) => {
     return (bandedLCS(seq1, seq2) * Math.min(len1, len2)) / Math.max(len1, len2);
 };
 
-// —– Trie (same) —–
+// ----- Trie (same) -----
 class TrieNode {
     constructor() {
         this.children = {};
@@ -95,8 +91,8 @@ class Trie {
     }
     findLongestPrefix(word) {
         let node = this.root;
-        let prefix = ‘’;
-        let lastEnd = ‘’;
+        let prefix = '';
+        let lastEnd = '';
         for (const char of word) {
             if (!node.children[char]) break;
             node = node.children[char];
@@ -107,13 +103,14 @@ class Trie {
     }
 }
 
-// —– HybridVectorGenerator (now returns sparse format) —–
+// ----- HybridVectorGenerator (now returns sparse format) -----
 class HybridVectorGenerator {
     constructor(wordVocab) {
-        this.wordVocab = wordVocab.split(’ | ’);
+        // Fix: Use standard single quotes and ensure clean split
+        this.wordVocab = wordVocab.replace(/\n/g, '').split(' | ').map(w => w.trim());
         this.trie = new Trie();
         this.wordVocab.forEach(w => this.trie.insert(w));
-        this.characters = ‘abcdefghijklmnopqrstuvwxyz0123456789’.split(’’);
+        this.characters = 'abcdefghijklmnopqrstuvwxyz0123456789'.split('');
         const bigramCounts = {};
         this.wordVocab.forEach(word => {
             if (word.length > 1)
@@ -217,16 +214,18 @@ class HybridVectorGenerator {
 
 }
 
-// —– Example vocab and generator init —–
-const vocab = “years | ways | worlds | live | lives | hands | parts | children | eyes | places | weeks | cases | points | numbers | groups | problems | facts | times | days | men | women | one | two | three | four | five | six | seven | eight | nine | ten | zero | none | size | sized | sizes | sizing | calls | called | calling | leaves | lefts | leaving |
-    try | tries | trying | feels | felt | feeling | seems | seemed | seeming | asks | asked | asking | tells | told | telling | finds | found | finding | looks | looked | looking | see | sees | seeing | saw | knows | knowing | knew | get | gets | got | getting | works | worked | working | I | a | able | about | after | all | also | am | an | and | any | are | as | ask | at | back | bad | be | because | been | being | bes | big | but | by | call | came | can |
-    case | child | come | comes | coming | company | could | day | different | do | does | doing | done | early | even | eye | fact | feel | few | find | first |
-        for | from | gave | get | give | gives | giving | go | goes | going | good | government | great | group | had | hand | has | have | he | her | high | him | his | how |
-        if | important | in | into | is | it | its | just | know | large | last | leave | life | like | little | long | look | make | makes | making | man | me | most | my | new | next | no | not | now | number | of | old | on | one | only | or | other | our | out | over | own | part | people | person | place | point | problem | public | right | said | same | saw | say | says | see | seeing | seem | sees | shall | she | should | small | so | some | take | takes | taking | tell | than | that | the | their | them | then | there | these | they | thing | think | thinking | thinks | this | thought | time | to | took |
-    try | two | up | us | use | used | uses | using | want | wanted | wanting | wants | was | way | we | week | well | went | were | what | when | which | who | will | with | woman | work | world | would | year | yes | yet | you | young | your”;
+// ----- Example vocab and generator init -----
+// Fixed: Use backticks for multiline string and cleaned up the copy-paste
+const vocab = `years | ways | worlds | live | lives | hands | parts | children | eyes | places | weeks | cases | points | numbers | groups | problems | facts | times | days | men | women | one | two | three | four | five | six | seven | eight | nine | ten | zero | none | size | sized | sizes | sizing | calls | called | calling | leaves | lefts | leaving |
+try | tries | trying | feels | felt | feeling | seems | seemed | seeming | asks | asked | asking | tells | told | telling | finds | found | finding | looks | looked | looking | see | sees | seeing | saw | knows | knowing | knew | get | gets | got | getting | works | worked | working | I | a | able | about | after | all | also | am | an | and | any | are | as | ask | at | back | bad | be | because | been | being | bes | big | but | by | call | came | can |
+case | child | come | comes | coming | company | could | day | different | do | does | doing | done | early | even | eye | fact | feel | few | find | first |
+for | from | gave | get | give | gives | giving | go | goes | going | good | government | great | group | had | hand | has | have | he | her | high | him | his | how |
+if | important | in | into | is | it | its | just | know | large | last | leave | life | like | little | long | look | make | makes | making | man | me | most | my | new | next | no | not | now | number | of | old | on | one | only | or | other | our | out | over | own | part | people | person | place | point | problem | public | right | said | same | saw | say | says | see | seeing | seem | sees | shall | she | should | small | so | some | take | takes | taking | tell | than | that | the | their | them | then | there | these | they | thing | think | thinking | thinks | this | thought | time | to | took |
+try | two | up | us | use | used | uses | using | want | wanted | wanting | wants | was | way | we | week | well | went | were | what | when | which | who | will | with | woman | work | world | would | year | yes | yet | you | young | your`;
+
 const generator = new HybridVectorGenerator(vocab);
 
-// —– SparseLexicalSearch (FIXED: Uint8 arithmetic + optimized dot product) —–
+// ----- SparseLexicalSearch (FIXED: Uint8 arithmetic + optimized dot product) -----
 class SparseLexicalSearch {
     constructor(generator) {
         this.generator = generator;
@@ -452,5 +451,5 @@ class SparseLexicalSearch {
 
 }
 
-// —– instantiate vector store —–
+// ----- instantiate vector store -----
 const vectorStore = new SparseLexicalSearch(generator);
