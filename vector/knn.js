@@ -1,4 +1,5 @@
-const lcs = function lcs(seq1, seq2) {
+(()=>{
+const lcs = (seq1, seq2) =>{
             "use strict";
             let arr1 = [...(seq1 ?? [])];
             let arr2 = [...(seq2 ?? [])];
@@ -410,4 +411,5 @@ class SparseLexicalSearch {
 }
 
 // ----- instantiate vector store -----
-const vectorStore = new SparseLexicalSearch(generator);
+globalThis.vectorStore = new SparseLexicalSearch(generator);
+})();
