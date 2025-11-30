@@ -147,7 +147,7 @@
             const sparseIndices = [];
             const sparseValues = [];
 
-            for (let i = 0; i < vecLength; ++i) {
+            for (let i = 0; i !== vecLength; ++i) {
                 let v = vec[i];
                 if (!Number.isFinite(v) || v < 0) v = 0;
                 else if (v > 1) v = 1;
@@ -222,7 +222,8 @@ try | two | up | us | use | used | uses | using | want | wanted | wanting | want
 
             // Pre-compute squared norm in integer space (for uint8, max ~= 255^2 * dim)
             let normSq = 0;
-            for (let i = 0; i < sparse.values.length; ++i) {
+            const sparseLength = sparse.values.length;
+            for (let i = 0; i !== sparseLength; ++i) {
                 const v = sparse.values[i];
                 normSq += v * v;
             }
@@ -242,8 +243,8 @@ try | two | up | us | use | used | uses | using | want | wanted | wanting | want
 
         _indexSparseVector(sparse, id) {
             const indices = sparse.indices;
-
-            for (let i = 0; i < indices.length; ++i) {
+            const indicesLength = indices.length;
+            for (let i = 0; i !== indicesLength; ++i) {
                 const globalIdx = indices[i];
                 let map, localIdx;
 
