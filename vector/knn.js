@@ -1,75 +1,33 @@
-/**
- * - Banded LCS for token arrays
- * - Complexity: O(n · band)
- * - FIXED: Proper bounds checking for band indices
- */
-function bandedLCS(tokensA, tokensB, similarityThreshold = 0.8) {
-    const n = tokensA.length;
-    const m = tokensB.length;
-
-    if (n === 0 || m === 0) return 0;
-
-    const maxLen = Math.max(n, m);
-
-    // Required overlap
-    const required = Math.ceil(similarityThreshold * maxLen);
-
-    // Band size: how far from main diagonal we allow
-    const band = Math.ceil((1 - similarityThreshold) * maxLen);
-
-    // dp_prev and dp_curr represent only the band
-    const width = 2 * band + 1;
-    let dp_prev = new Int16Array(width);
-    let dp_curr = new Int16Array(width);
-
-    // Translate DP index j to band index
-    // Returns -1 if out of band bounds
-    const indexInBand = (i, j) => {
-        const idx = j - (i - band);
-        if (idx < 0 || idx >= width) return -1;
-        return idx;
-    };
-
-    for (let i = 1; i <= n; i++) {
-        dp_curr.fill(0);
-
-        // Allowed j range
-        const jStart = Math.max(1, i - band);
-        const jEnd = Math.min(m, i + band);
-
-        for (let j = jStart; j <= jEnd; j++) {
-            const bi = indexInBand(i, j);
-            if (bi < 0) continue; // defensive
-
-            if (tokensA[i - 1] === tokensB[j - 1]) {
-                const biD = indexInBand(i - 1, j - 1);
-                dp_curr[bi] = (biD >= 0 ? dp_prev[biD] : 0) + 1;
-            } else {
-                const biL = indexInBand(i, j - 1);
-                const biU = indexInBand(i - 1, j);
-                const left = biL >= 0 ? dp_curr[biL] : 0;
-                const up = biU >= 0 ? dp_prev[biU] : 0;
-                dp_curr[bi] = Math.max(left, up);
+const lcs = function lcs(seq1, seq2) {
+            "use strict";
+            let arr1 = [...(seq1 ?? [])];
+            let arr2 = [...(seq2 ?? [])];
+            if (arr2.length > arr1.length) {
+              [arr1, arr2] = [arr2, arr1];
             }
-        }
+            const dp = Array(arr1.length + 1)
+              .fill(0)
+              .map(() => Array(arr2.length + 1).fill(0));
+            const dp_length = dp.length;
+            for (let i = 1; i !== dp_length; i++) {
+              const dpi_length = dp[i].length;
+              for (let x = 1; x !== dpi_length; x++) {
+                if (arr1[i - 1] === arr2[x - 1]) {
+                  dp[i][x] = dp[i - 1][x - 1] + 1;
+                } else {
+                  dp[i][x] = Math.max(dp[i][x - 1], dp[i - 1][x]);
+                }
+              }
+            }
+            return dp[arr1.length][arr2.length];
+          };
 
-        // Rotate buffers
-        [dp_prev, dp_curr] = [dp_curr, dp_prev];
-    }
-
-    // LCS is at dp_prev index for j = m
-    const finalIndex = indexInBand(n, m);
-    return finalIndex >= 0 ? dp_prev[finalIndex] : 0;
-}
-
-const weightedLCS = (seq1, seq2) => {
-    // Accept strings or arrays
-    const len1 = (seq1 && seq1.length) || 0;
-    const len2 = (seq2 && seq2.length) || 0;
-    if (len1 === 0 || len2 === 0) return 0;
-    return (bandedLCS(seq1, seq2) * Math.min(len1, len2)) / Math.max(len1, len2);
-};
-
+          const weightedLCS = (seq1, seq2) => {
+            return (
+              (lcs(seq1, seq2) * Math.min(seq1.length, seq2.length)) /
+              Math.max(seq1.length, seq2.length)
+            );
+          };
 // ----- Trie (same) -----
 class TrieNode {
     constructor() {
@@ -382,9 +340,9 @@ class SparseLexicalSearch {
         if (candidates.size === 0) return [];
 
         // Prune to top candidates
-        const topCandidates = Array.from(candidates.entries())
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 150)
+        let topCandidates = Array.from(candidates.entries())
+            .sort((a, b) => b[1] - a[1]);
+            topCandidates = topCandidates.slice(0, Math.max(150,~~(topCandidates.length*0.2)))
             .map(e => e[0]);
 
         // OPTIMIZED: Sparse dot product using pre-computed sparse representations
@@ -431,7 +389,7 @@ class SparseLexicalSearch {
         return reRanked.slice(0, k);
     }
 
-    bestMatch(queryText, k = 10) {
+    bestMatch(queryText, k = 20) {
         const matches = this.search(queryText, k);
         if (!matches || matches.length === 0) return null;
 
