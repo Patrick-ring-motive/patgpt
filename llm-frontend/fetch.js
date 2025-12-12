@@ -66,6 +66,7 @@
     (async () => {
       while (true) {
         try {
+            await sleep(100);
           await nextIdle();
           if (document.hidden || (document.visibilityState && document.visibilityState != 'visible') || navigator.scheduling?.isInputPending?.()) {
             continue;
