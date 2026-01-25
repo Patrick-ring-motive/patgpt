@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en-US"
+      class="no-theme react no-js"
+      data-version-tag="serp_20260123_181235_ET"
+      data-version-sha="6b9fe15071361a6513ea0a910ee543ea20b868af">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- todo(Shane): to be removed when ready -->
+    <meta name="robots" content="noindex, nofollow">
+
+    <title>Duck.ai by DuckDuckGo. Private AI chat. Free.</title>
+    <meta name="description" content="Use ChatGPT, Claude, and other AIs, privately. Protect chats from hackers, scammers, and companies. Keep info confidential. Free. No account required." />
+    <meta name="keywords" content="Duck.ai, DuckDuckGo AI, private AI chatbot, free AI chat, anonymous AI chat, AI chat no sign up, OpenAI, Anthropic, Llama, Mistral, open source AI models, privacy focused AI, no account AI chat" />
+    <meta property="og:title" content="Duck.ai">
+    <meta property="og:image" content="/og-image-duckai.png">
+    <meta property="og:description" content="Use ChatGPT, Claude, and other AIs, privately. Protect chats from hackers, scammers, and companies. Keep info confidential. Free. No account required.">
+    <meta property="og:url" content="https://duck.ai/">
+    <meta property="og:site_name" content="Duck.ai">
+
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Duck.ai" />
+    <link rel="manifest" href="/site.webmanifest" crossorigin="use-credentials" />
+
+<script>
+try {
+    beforeBody();
+} catch (error) {
+    console.error(error);
+}
+function beforeBody() {
+    document.documentElement?.classList.remove('no-js');
+    const browserPref = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    let userSelected = 'none';
+    if (localStorage.setting_kae === '-1') userSelected = 'light';
+    if (localStorage.setting_kae === 'd') userSelected = 'dark';
+    switch (userSelected) {
+        case 'none': {
+            if (browserPref === 'dark') {
+                document.documentElement.classList.add('set-theme--dark');
+            }
+            break;
+        }
+        case 'light': {
+            if (browserPref === 'dark') {
+                // prevent the flash of dark theme
+                document.documentElement.classList.remove('no-theme');
+                document.documentElement.classList.remove('set-theme--light');
+            }
+            break;
+        }
+        case 'dark': {
+            document.documentElement.classList.add('set-theme--dark');
+            break;
+        }
+    }
+}
+
+</script>
+<style>
+.loader {
+    width: 100vw;
+    height: 100vh;
+    display: grid;
+    place-content: center;
+}
+.loader .progress-svg {
+    width: 24px;
+    height: 24px;
+    animation: waiter-spin 0.8s linear infinite;
+    transform-origin: 50% 50%;
+}
+@keyframes waiter-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Noscript message styles */
+.noscript-container {
+    width: 100vw;
+    height: 100vh;
+    display: grid;
+    place-content: center;
+    padding: 16px;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.noscript-text {
+    font-size: 16px;
+    line-height: 1.4;
+    color: #111;
+}
+
+/* Prefer feature-detection via html.no-js/js over DOM structure */
+/* Hide loader when JS is disabled */
+.no-js .loader { display: none; }
+</style>
+<link rel="alternate" hreflang="af-ZA" href="https://duck.ai/?locale=af_ZA">
+<link rel="alternate" hreflang="ar-DZ" href="https://duck.ai/?locale=ar_DZ">
+<link rel="alternate" hreflang="ar-EG" href="https://duck.ai/?locale=ar_EG">
+<link rel="alternate" hreflang="ar-JO" href="https://duck.ai/?locale=ar_JO">
+<link rel="alternate" hreflang="ar-SA" href="https://duck.ai/?locale=ar_SA">
+<link rel="alternate" hreflang="ast-ES" href="https://duck.ai/?locale=ast_ES">
+<link rel="alternate" hreflang="az-AZ" href="https://duck.ai/?locale=az_AZ">
+<link rel="alternate" hreflang="be-BY" href="https://duck.ai/?locale=be_BY">
+<link rel="alternate" hreflang="bg-BG" href="https://duck.ai/?locale=bg_BG">
+<link rel="alternate" hreflang="bn-BD" href="https://duck.ai/?locale=bn_BD">
+<link rel="alternate" hreflang="bn-IN" href="https://duck.ai/?locale=bn_IN">
+<link rel="alternate" hreflang="bo-CN" href="https://duck.ai/?locale=bo_CN">
+<link rel="alternate" hreflang="br-FR" href="https://duck.ai/?locale=br_FR">
+<link rel="alternate" hreflang="bs-BA" href="https://duck.ai/?locale=bs_BA">
+<link rel="alternate" hreflang="ca-ES" href="https://duck.ai/?locale=ca_ES">
+<link rel="alternate" hreflang="cs-CZ" href="https://duck.ai/?locale=cs_CZ">
+<link rel="alternate" hreflang="cy-GB" href="https://duck.ai/?locale=cy_GB">
+<link rel="alternate" hreflang="da-DK" href="https://duck.ai/?locale=da_DK">
+<link rel="alternate" hreflang="de-CH" href="https://duck.ai/?locale=de_CH">
+<link rel="alternate" hreflang="de-DE" href="https://duck.ai/?locale=de_DE">
+<link rel="alternate" hreflang="el-GR" href="https://duck.ai/?locale=el_GR">
+<link rel="alternate" hreflang="en-AU" href="https://duck.ai/?locale=en_AU">
+<link rel="alternate" hreflang="en-CA" href="https://duck.ai/?locale=en_CA">
+<link rel="alternate" hreflang="en-GB" href="https://duck.ai/?locale=en_GB">
+<link rel="alternate" hreflang="en-US" href="https://duck.ai/?locale=en_US">
+<link rel="alternate" hreflang="eo-XX" href="https://duck.ai/?locale=eo_XX">
+<link rel="alternate" hreflang="es-AR" href="https://duck.ai/?locale=es_AR">
+<link rel="alternate" hreflang="es-CL" href="https://duck.ai/?locale=es_CL">
+<link rel="alternate" hreflang="es-CO" href="https://duck.ai/?locale=es_CO">
+<link rel="alternate" hreflang="es-CR" href="https://duck.ai/?locale=es_CR">
+<link rel="alternate" hreflang="es-EC" href="https://duck.ai/?locale=es_EC">
+<link rel="alternate" hreflang="es-ES" href="https://duck.ai/?locale=es_ES">
+<link rel="alternate" hreflang="es-MX" href="https://duck.ai/?locale=es_MX">
+<link rel="alternate" hreflang="es-PE" href="https://duck.ai/?locale=es_PE">
+<link rel="alternate" hreflang="es-UY" href="https://duck.ai/?locale=es_UY">
+<link rel="alternate" hreflang="es-VE" href="https://duck.ai/?locale=es_VE">
+<link rel="alternate" hreflang="et-EE" href="https://duck.ai/?locale=et_EE">
+<link rel="alternate" hreflang="eu-ES" href="https://duck.ai/?locale=eu_ES">
+<link rel="alternate" hreflang="fa-IR" href="https://duck.ai/?locale=fa_IR">
+<link rel="alternate" hreflang="fi-FI" href="https://duck.ai/?locale=fi_FI">
+<link rel="alternate" hreflang="fr-BE" href="https://duck.ai/?locale=fr_BE">
+<link rel="alternate" hreflang="fr-CA" href="https://duck.ai/?locale=fr_CA">
+<link rel="alternate" hreflang="fr-CH" href="https://duck.ai/?locale=fr_CH">
+<link rel="alternate" hreflang="fr-FR" href="https://duck.ai/?locale=fr_FR">
+<link rel="alternate" hreflang="ga-IE" href="https://duck.ai/?locale=ga_IE">
+<link rel="alternate" hreflang="gd-GB" href="https://duck.ai/?locale=gd_GB">
+<link rel="alternate" hreflang="gl-ES" href="https://duck.ai/?locale=gl_ES">
+<link rel="alternate" hreflang="gu-IN" href="https://duck.ai/?locale=gu_IN">
+<link rel="alternate" hreflang="he-IL" href="https://duck.ai/?locale=he_IL">
+<link rel="alternate" hreflang="hi-IN" href="https://duck.ai/?locale=hi_IN">
+<link rel="alternate" hreflang="hr-HR" href="https://duck.ai/?locale=hr_HR">
+<link rel="alternate" hreflang="hu-HU" href="https://duck.ai/?locale=hu_HU">
+<link rel="alternate" hreflang="hy-AM" href="https://duck.ai/?locale=hy_AM">
+<link rel="alternate" hreflang="id-ID" href="https://duck.ai/?locale=id_ID">
+<link rel="alternate" hreflang="io-XX" href="https://duck.ai/?locale=io_XX">
+<link rel="alternate" hreflang="is-IS" href="https://duck.ai/?locale=is_IS">
+<link rel="alternate" hreflang="it-IT" href="https://duck.ai/?locale=it_IT">
+<link rel="alternate" hreflang="ja-JP" href="https://duck.ai/?locale=ja_JP">
+<link rel="alternate" hreflang="ka-GE" href="https://duck.ai/?locale=ka_GE">
+<link rel="alternate" hreflang="kab-DZ" href="https://duck.ai/?locale=kab_DZ">
+<link rel="alternate" hreflang="kn-IN" href="https://duck.ai/?locale=kn_IN">
+<link rel="alternate" hreflang="ko-KR" href="https://duck.ai/?locale=ko_KR">
+<link rel="alternate" hreflang="ku" href="https://duck.ai/?locale=ku">
+<link rel="alternate" hreflang="kw-GB" href="https://duck.ai/?locale=kw_GB">
+<link rel="alternate" hreflang="ky-KG" href="https://duck.ai/?locale=ky_KG">
+<link rel="alternate" hreflang="ln-CD" href="https://duck.ai/?locale=ln_CD">
+<link rel="alternate" hreflang="lt-LT" href="https://duck.ai/?locale=lt_LT">
+<link rel="alternate" hreflang="lv-LV" href="https://duck.ai/?locale=lv_LV">
+<link rel="alternate" hreflang="ml-IN" href="https://duck.ai/?locale=ml_IN">
+<link rel="alternate" hreflang="mn-MN" href="https://duck.ai/?locale=mn_MN">
+<link rel="alternate" hreflang="mr-IN" href="https://duck.ai/?locale=mr_IN">
+<link rel="alternate" hreflang="ms-MY" href="https://duck.ai/?locale=ms_MY">
+<link rel="alternate" hreflang="nb-NO" href="https://duck.ai/?locale=nb_NO">
+<link rel="alternate" hreflang="ne-NP" href="https://duck.ai/?locale=ne_NP">
+<link rel="alternate" hreflang="nl-BE" href="https://duck.ai/?locale=nl_BE">
+<link rel="alternate" hreflang="nl-NL" href="https://duck.ai/?locale=nl_NL">
+<link rel="alternate" hreflang="nn-NO" href="https://duck.ai/?locale=nn_NO">
+<link rel="alternate" hreflang="od-IN" href="https://duck.ai/?locale=od_IN">
+<link rel="alternate" hreflang="pl-PL" href="https://duck.ai/?locale=pl_PL">
+<link rel="alternate" hreflang="ps-AF" href="https://duck.ai/?locale=ps_AF">
+<link rel="alternate" hreflang="pt-BR" href="https://duck.ai/?locale=pt_BR">
+<link rel="alternate" hreflang="pt-PT" href="https://duck.ai/?locale=pt_PT">
+<link rel="alternate" hreflang="ro-RO" href="https://duck.ai/?locale=ro_RO">
+<link rel="alternate" hreflang="ru-RU" href="https://duck.ai/?locale=ru_RU">
+<link rel="alternate" hreflang="sc-IT" href="https://duck.ai/?locale=sc_IT">
+<link rel="alternate" hreflang="si-LK" href="https://duck.ai/?locale=si_LK">
+<link rel="alternate" hreflang="sk-SK" href="https://duck.ai/?locale=sk_SK">
+<link rel="alternate" hreflang="sl-SI" href="https://duck.ai/?locale=sl_SI">
+<link rel="alternate" hreflang="sq-AL" href="https://duck.ai/?locale=sq_AL">
+<link rel="alternate" hreflang="sr-RS" href="https://duck.ai/?locale=sr_RS">
+<link rel="alternate" hreflang="sv-SE" href="https://duck.ai/?locale=sv_SE">
+<link rel="alternate" hreflang="ta-IN" href="https://duck.ai/?locale=ta_IN">
+<link rel="alternate" hreflang="te-IN" href="https://duck.ai/?locale=te_IN">
+<link rel="alternate" hreflang="th-TH" href="https://duck.ai/?locale=th_TH">
+<link rel="alternate" hreflang="tl-PH" href="https://duck.ai/?locale=tl_PH">
+<link rel="alternate" hreflang="tokipona-XX" href="https://duck.ai/?locale=tokipona_XX">
+<link rel="alternate" hreflang="tpi-PG" href="https://duck.ai/?locale=tpi_PG">
+<link rel="alternate" hreflang="tr-TR" href="https://duck.ai/?locale=tr_TR">
+<link rel="alternate" hreflang="uk-UA" href="https://duck.ai/?locale=uk_UA">
+<link rel="alternate" hreflang="ur-PK" href="https://duck.ai/?locale=ur_PK">
+<link rel="alternate" hreflang="vi-VN" href="https://duck.ai/?locale=vi_VN">
+<link rel="alternate" hreflang="zh-CN" href="https://duck.ai/?locale=zh_CN">
+<link rel="alternate" hreflang="zh-TW" href="https://duck.ai/?locale=zh_TW">
+<link rel="canonical" href="https://duck.ai">
+    <link rel="stylesheet" href="/dist/duckai-dist/duckai.ea451c4243db02a7c7926c7f.css" />
+    <link rel="stylesheet" href="/dist/duckai-dist/entry.duckai.47a13f4128777bad7d73.css" />
+    <link rel="stylesheet" href="" />
+</head>
+<body>
+    <noscript>
+        <div class="noscript-container">
+            <p class="noscript-text">Duck.ai requires JavaScript to run</p>
+            <p class="noscript-text">Visit <a href="https://duckduckgo.com">duckduckgo.com</a></p>
+        </div>
+    </noscript>
+    <div id="app-loader" class="loader">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="progress-svg">
+            <g id="Progress" clip-path="url(#clip0_4452_808)">
+                <path id="Ellipse 207" d="M8 0C6.26085 -2.07391e-08 4.56907 0.56674 3.18088 1.61439C1.79269 2.66203 0.783702 4.13352 0.306737 5.80599C-0.170228 7.47845 -0.0891924 9.2608 0.537571 10.8831C1.16433 12.5054 2.30268 13.8792 3.78022 14.7966C5.25775 15.7139 6.99398 16.1248 8.72595 15.967C10.4579 15.8092 12.0913 15.0913 13.3787 13.922C14.6661 12.7527 15.5374 11.1957 15.8606 9.48684C16.1838 7.778 15.9414 6.01036 15.17 4.45164L12.7585 5.64507C13.2705 6.67954 13.4314 7.85266 13.2168 8.98677C13.0023 10.1209 12.4241 11.1542 11.5697 11.9302C10.7153 12.7062 9.63125 13.1827 8.48179 13.2874C7.33234 13.3922 6.18006 13.1195 5.19947 12.5107C4.21888 11.9018 3.46339 10.9901 3.04743 9.91341C2.63147 8.83675 2.57769 7.65387 2.89423 6.5439C3.21078 5.43394 3.88041 4.45737 4.80171 3.76208C5.723 3.06679 6.84578 2.69066 8 2.69066V0Z" fill="#3969EF"/>
+                <path id="Ellipse 208" d="M15.1747 4.46122C14.5138 3.12117 13.4908 1.993 12.2215 1.20452C10.9523 0.416048 9.48767 -0.00121567 7.99348 2.65938e-06L7.99567 2.69066C8.98732 2.68986 9.95937 2.96678 10.8017 3.49006C11.644 4.01335 12.323 4.76208 12.7616 5.65143L15.1747 4.46122Z" fill="#CCDAFF"/>
+            </g>
+            <defs>
+                <clipPath id="clip0_4452_808">
+                    <rect width="16" height="16" fill="white"/>
+                </clipPath>
+            </defs>
+        </svg>
+    </div>
+    <div id="app"></div>
+    <script src="/dist/duckai-dist/lib.91d392df195d4371dfcff8dd.js"></script>
+    <script src="/dist/locale/en_US.2064e1b3e64215ff5256416a1af87e68.js"></script>
+    <script src="/dist/duckai-dist/entry.vendors.8aaf2efb42c5375d19e0.js"></script>
+    <script src="/dist/duckai-dist/entry.duckai.fea32e98fd989462b8cc.js"></script>
+</body>
+</html>
