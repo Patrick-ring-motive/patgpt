@@ -222,6 +222,9 @@
           if (String(value).includes('external-content.llm.patrickring.net')) {
             value = String(value).replace('external-content.llm.patrickring.net', 'external-content-llm.patrickring.net');
           }
+          if (String(value).includes('external-content.duck.patrickring.net')) {
+            value = String(value).replace('external-content.duck.patrickring.net', 'external-content-duck.patrickring.net');
+          }
           return _imgSet.call(this, value);
         }, _imgSet)
       }, _desc));
