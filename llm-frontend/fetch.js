@@ -1,8 +1,8 @@
-/*
-</script>
-<script src="https://cdn.jsdelivr.net/npm/web-streams-shim/web-streams-core.js"></script>
-<script>
-/**/
+
+//</script>
+//<script src="https://cdn.jsdelivr.net/npm/web-streams-shim/web-streams-core.js"></script>
+//<script>
+
 
 (() => {
     const Q = fn => {
