@@ -2,7 +2,7 @@
 const scale = 255;
 const vecLength = vec.length;
 const qbytes = new Uint8Array(vecLength);
-for (let i = 0; i !== vecLength; ++i){
+for (let i = 0; i !== vecLength; ++i) {
   qbytes[i] = ~~(vec[i] * scale);
 }
 

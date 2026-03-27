@@ -16,14 +16,14 @@
   const encode = encoder.encode.bind(encoder);
   const decoder = new TextDecoder();
   const decode = decoder.decode.bind(decoder);
-  const responseText = async(res) =>{
+  const responseText = async (res) => {
     let text = '';
     const stream = res?.body;
-    try{
+    try {
       for await (const chunk of stream) {
         text += decode(chunk);
       }
-    }catch(e){
+    } catch (e) {
       text += String(e?.message ?? e);
     }
     return text;
@@ -58,20 +58,20 @@
       try {
         requestInit.id = crypto.randomUUID();
         let resolve;
-        const promise = new Promise(async(res) => {
-          try{
+        const promise = new Promise(async (res) => {
+          try {
             resolve = res;
-            for(const _ of Array(10)){
+            for (const _ of Array(10)) {
               await nextIdle();
             }
-          }catch(e){
-            console.warn(e,requestInit);
-            if(!resolve.resolved){
+          } catch (e) {
+            console.warn(e, requestInit);
+            if (!resolve.resolved) {
               resolve.resolved = true;
               reslove(String(e?.message ?? e));
             }
           }
-          if(!resolve.resolved){
+          if (!resolve.resolved) {
             resolve.resolved = true;
             reslove(String(e?.message ?? e));
           }
