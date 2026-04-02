@@ -1,51 +1,56 @@
-      
       xxol,
-        [href*="duckduckgo-help-pages"],
-        [text="Settings"]:not(code *),
-        span[text="."]:not(.token,code *),
-        [data-testid="anomaly-modal"],
-        xx[id*="heading"][id*="assistant"][id*="message"]:not([data-activeresponse="false"]),
-        section:has(img[src*="external-content"]):not(:has(section)),
-        form>:last-child,
-        [aria-pressed="true"][data-selected="true"],
-        [text="Search"]:not(code *),
-        [aria-label="Customize responses"],
-        [aria-label="Attach image"],
-        [text*="duckduckgo"i],
-        [href*="apps.apple.com"],
-        [href*="play.google.com"],
-        [data-testid="serp-atb-btn"],
-        button:has([href*="apps.apple.com"]),
-        button[text="4o-mini"],
-        button[aria-label="Open settings"],
-        svg[preserveAspectRatio="xMidYMid meet"],
-        a[href*="what-information-does-duckai-share-with-model-providers"],
-        li:has(a[href*="what-information-does-duckai-share-with-model-providers"]) ~ *,
-        button[aria-label="Learn about Active Privacy Protection"],
-        span[id="aichat-side-menu-button"],
-        div[data-testid="free-badge-container"],
-        section:first-of-type svg[fill="none"]:has(g[opacity="0.8"]),
-        span[data-testid="feedback-prompt"]{
-          display:none !important;
-        }
- 
-        h1,h2,h3,h4,h5,h6,
-        strong,
-        li:first-letter,
-        p:first-letter,
-        p:has(span[text="."]):first-letter{
-          text-transform:capitalize;
-        }
+      [href*="duckduckgo-help-pages"],
+      [text="Settings"]:not(code *),
+      span[text="."]:not(.token, code *),
+      [data-testid="anomaly-modal"],
+      xx[id*="heading"][id*="assistant"][id*="message"]:not([data-activeresponse="false"]),
+      section:has(img[src*="external-content"]):not(:has(section)),
+      form>:last-child,
+      [aria-pressed="true"][data-selected="true"],
+      [text="Search"]:not(code *),
+      [aria-label="Customize responses"],
+      [aria-label="Attach image"],
+      [text*="duckduckgo" i],
+      [href*="apps.apple.com"],
+      [href*="play.google.com"],
+      [data-testid="serp-atb-btn"],
+      button:has([href*="apps.apple.com"]),
+      button[text="4o-mini"],
+      button[aria-label="Open settings"],
+      svg[preserveAspectRatio="xMidYMid meet"],
+      a[href*="what-information-does-duckai-share-with-model-providers"],
+      li:has(a[href*="what-information-does-duckai-share-with-model-providers"])~*,
+      button[aria-label="Learn about Active Privacy Protection"],
+      span[id="aichat-side-menu-button"],
+      div[data-testid="free-badge-container"],
+      section:first-of-type svg[fill="none"]:has(g[opacity="0.8"]),
+      span[data-testid="feedback-prompt"] {
+        display: none !important;
+      }
 
-        html{
-          filter:hue-rotate(-45deg);
-        }
-        [text] *{
-            text-decoration-line: none;
-        }
-        del{
-           border-width: 1vmin;
-            border-style: solid;
-            border-color: rgba(0, 0, 0, 0);
-        }
-      
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      strong,
+      li:first-letter,
+      p:first-letter,
+      p:has(span[text="."]):first-letter {
+        text-transform: capitalize;
+      }
+
+      html {
+        filter: hue-rotate(-45deg);
+      }
+
+      [text] * {
+        text-decoration-line: none;
+      }
+
+      del {
+        border-width: 1vmin;
+        border-style: solid;
+        border-color: rgba(0, 0, 0, 0);
+      }
